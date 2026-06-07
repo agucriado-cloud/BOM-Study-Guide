@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book of Mormon / Libro de Mormón — Study Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f0e8; --bg2: #ede7d9; --bg3: #e4dcc8;
+  --panel: #faf7f2; --panel2: #f0ead8;
+  --border: #c8bfa0; --border2: #a89878;
+  --copper: #8b5c2a; --copper2: #b07840; --copper3: #d4a060;
+  --lapis: #2a4a7a; --lapis2: #3a6098; --lapis3: #5a80b8;
+  --crimson: #7a2020; --crimson2: #9a3030;
+  --teal: #1a6060; --teal2: #2a8080; --teal3: #4aA0A0;
+  --text: #2a2218; --text2: #5a4a30; --text3: #8a7a60;
+  --white: #fdfbf7; --shadow: rgba(42,34,24,0.12);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Cormorant Garamond',Georgia,serif; font-size:16px; line-height:1.7; background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a89878' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.app { display:flex; height:100vh; overflow:hidden; }
+
+/* SIDEBAR */
+.sidebar { width:240px; min-width:240px; background:var(--bg2); border-right:2px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; z-index:10; }
+.sidebar-header { padding:18px 16px 14px; border-bottom:1px solid var(--border); background:var(--bg3); }
+.sidebar-header h1 { font-family:'Cinzel',serif; font-size:12px; color:var(--copper); letter-spacing:2.5px; text-transform:uppercase; line-height:1.5; }
+.sidebar-header .sub { font-size:11px; color:var(--text3); letter-spacing:1px; font-style:italic; margin-top:3px; }
+
+/* LANGUAGE TOGGLE */
+.lang-toggle { display:flex; margin:14px 10px 16px; border:3px solid var(--copper); border-radius:6px; overflow:hidden; background:var(--bg3); box-shadow:0 4px 12px rgba(139,92,42,0.3); }
+.lang-btn { flex:1; padding:14px 16px; text-align:center; cursor:pointer; font-family:'Cinzel',serif; font-size:13px; letter-spacing:3px; text-transform:uppercase; transition:all 0.3s; color:var(--copper); background:var(--panel); font-weight:700; border:none; }
+.lang-btn:hover { background:var(--bg2); transform:scale(1.05); }
+.lang-btn.active { background:var(--copper); color:var(--white); font-weight:800; box-shadow:inset 0 2px 4px rgba(0,0,0,0.2); }
+.lang-btn:first-child { border-right:3px solid var(--copper); }
+
+.nav-section { padding:4px 0; border-bottom:1px solid var(--border); }
+.nav-label { padding:7px 16px 3px; font-family:'Cinzel',serif; font-size:8px; color:var(--text3); letter-spacing:2.5px; text-transform:uppercase; }
+.nav-item { padding:7px 16px; cursor:pointer; font-size:13px; color:var(--text2); transition:all 0.18s; display:flex; align-items:center; gap:8px; border-left:3px solid transparent; font-family:'Cormorant Garamond',serif; font-weight:500; }
+.nav-item:hover { color:var(--copper); background:rgba(139,92,42,0.06); border-left-color:var(--copper3); }
+.nav-item.active { color:var(--copper); background:rgba(139,92,42,0.1); border-left-color:var(--copper); font-weight:600; }
+.nav-item .ni { font-size:12px; width:15px; text-align:center; opacity:0.7; }
+
+/* MAIN */
+.main { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
+.topbar { background:var(--bg3); border-bottom:2px solid var(--border); padding:11px 28px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:5; box-shadow:0 2px 8px var(--shadow); }
+.topbar-title { font-family:'Cinzel',serif; font-size:13px; color:var(--copper); letter-spacing:1.5px; }
+.topbar-right { font-size:12px; color:var(--text3); font-style:italic; }
+.content { padding:26px 28px; flex:1; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* LANGUAGE CONTENT */
+.en, .es { display:none !important; }
+body.lang-en .en { display:inherit !important; }
+body.lang-es .es { display:inherit !important; }
+.en-text, .es-text { display:none !important; }
+body.lang-en .en-text { display:block !important; }
+body.lang-es .es-text { display:block !important; }
+.en-inline, .es-inline { display:none !important; }
+body.lang-en .en-inline { display:inline !important; }
+body.lang-es .es-inline { display:inline !important; }
+
+/* COMPONENTS */
+.section-h { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.section-h h2 { font-family:'Cinzel',serif; font-size:17px; color:var(--copper); letter-spacing:1px; white-space:nowrap; }
+.section-h .orn { flex:1; height:1px; background:linear-gradient(to right, var(--border2), transparent); }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:3px; padding:20px 22px; margin-bottom:16px; box-shadow:0 1px 4px var(--shadow); }
+.card-title { font-family:'Cinzel',serif; font-size:10px; color:var(--copper); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; padding-bottom:7px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.verse-block { background:var(--bg2); border-left:3px solid var(--copper); padding:12px 16px; margin:12px 0; font-style:italic; font-size:15px; color:var(--text); border-radius:0 3px 3px 0; }
+.verse-ref { display:block; font-style:normal; font-family:'Cinzel',serif; font-size:10px; color:var(--copper2); letter-spacing:1px; margin-top:7px; }
+.tag { display:inline-block; padding:2px 9px; border-radius:3px; font-size:11px; font-family:'Cinzel',serif; letter-spacing:0.5px; }
+.tag-doctrine { background:rgba(42,74,122,0.1); border:1px solid rgba(42,74,122,0.3); color:var(--lapis2); }
+.tag-history { background:rgba(139,92,42,0.1); border:1px solid rgba(139,92,42,0.3); color:var(--copper); }
+.tag-prophecy { background:rgba(122,32,32,0.1); border:1px solid rgba(122,32,32,0.3); color:var(--crimson2); }
+.tag-wisdom { background:rgba(26,96,96,0.1); border:1px solid rgba(26,96,96,0.3); color:var(--teal2); }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.stats-row { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:18px; }
+.stat-box { background:var(--panel); border:1px solid var(--border); border-radius:3px; padding:14px 10px; text-align:center; box-shadow:0 1px 3px var(--shadow); }
+.stat-box .sv { font-family:'Cinzel',serif; font-size:20px; color:var(--copper); display:block; }
+.stat-box .sl { font-size:11px; color:var(--text3); font-style:italic; margin-top:2px; }
+.books-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:18px; }
+.book-card { padding:12px 10px; background:var(--panel); border:1px solid var(--border); border-radius:3px; cursor:pointer; transition:all 0.18s; text-align:center; box-shadow:0 1px 3px var(--shadow); }
+.book-card:hover { border-color:var(--copper3); background:rgba(139,92,42,0.04); transform:translateY(-1px); }
+.book-card .bname { font-family:'Cinzel',serif; font-size:11px; color:var(--copper); margin-bottom:3px; }
+.book-card .bchaps { font-size:11px; color:var(--text3); }
+.book-card .bdate { font-size:10px; color:var(--text3); font-style:italic; margin-top:2px; }
+.five-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:18px; }
+.five-card { background:var(--panel); border:1px solid var(--border); border-radius:3px; padding:14px 10px; cursor:pointer; transition:all 0.18s; text-align:center; box-shadow:0 1px 3px var(--shadow); }
+.five-card:hover { border-color:var(--lapis3); transform:translateY(-1px); }
+.five-card.active { border-color:var(--lapis); background:rgba(42,74,122,0.06); }
+.five-card .fc-ref { font-family:'Cinzel',serif; font-size:11px; color:var(--lapis); margin-bottom:5px; display:block; }
+.five-card .fc-title { font-size:12px; color:var(--text2); font-style:italic; line-height:1.4; }
+.five-detail { display:none; margin-bottom:16px; }
+.five-detail.visible { display:block; }
+.tl-strip { display:flex; align-items:stretch; gap:2px; margin:14px 0; overflow-x:auto; padding-bottom:4px; }
+.tl-seg { flex-shrink:0; padding:7px 9px; border-radius:3px; text-align:center; min-width:78px; }
+.tl-seg .tl-name { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.5px; display:block; }
+.tl-seg .tl-date { font-size:9px; display:block; margin-top:2px; opacity:0.8; }
+.tl-nephi { background:rgba(42,74,122,0.14); border:1px solid rgba(42,74,122,0.3); color:var(--lapis); }
+.tl-mosiah { background:rgba(26,96,96,0.11); border:1px solid rgba(26,96,96,0.3); color:var(--teal); }
+.tl-alma { background:rgba(139,92,42,0.11); border:1px solid rgba(139,92,42,0.3); color:var(--copper); }
+.tl-christ { background:rgba(122,32,32,0.14); border:1px solid rgba(122,32,32,0.3); color:var(--crimson); }
+.tl-end { background:rgba(90,80,60,0.11); border:1px solid rgba(90,80,60,0.3); color:var(--text2); }
+
+/* DOCTRINE / CHAR / THEME GRIDS */
+.doctrine-grid, .char-grid, .theme-grid { display:grid; gap:10px; }
+.doctrine-grid, .theme-grid { grid-template-columns:repeat(3,1fr); }
+.char-grid { grid-template-columns:repeat(4,1fr); }
+.doctrine-card, .char-card, .theme-card { background:var(--panel); border:1px solid var(--border); border-radius:3px; padding:16px; cursor:pointer; transition:all 0.18s; box-shadow:0 1px 3px var(--shadow); }
+.doctrine-card:hover { border-color:var(--lapis3); transform:translateY(-1px); }
+.doctrine-card.selected { border-color:var(--lapis); background:rgba(42,74,122,0.04); }
+.doctrine-card h3 { font-family:'Cinzel',serif; font-size:11px; color:var(--lapis); margin-bottom:5px; letter-spacing:0.5px; }
+.doctrine-card p { font-size:12px; color:var(--text3); line-height:1.5; }
+.doctrine-refs { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
+.d-ref { font-size:10px; padding:2px 6px; border-radius:2px; background:rgba(42,74,122,0.07); border:1px solid rgba(42,74,122,0.2); color:var(--lapis2); font-family:'Cinzel',serif; }
+.doctrine-detail, .char-detail, .theme-detail { background:var(--panel); border:1px solid var(--border2); border-radius:3px; padding:22px; margin-top:12px; display:none; box-shadow:0 2px 8px var(--shadow); }
+.doctrine-detail.visible, .char-detail.visible, .theme-detail.visible { display:block; }
+.char-card:hover { border-color:var(--copper3); transform:translateY(-1px); }
+.char-card.selected { border-color:var(--copper); background:rgba(139,92,42,0.05); }
+.char-initial { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:15px; margin-bottom:8px; }
+.char-card h3 { font-family:'Cinzel',serif; font-size:11px; color:var(--text); margin-bottom:2px; }
+.char-card .ch-role { font-size:11px; color:var(--text3); font-style:italic; }
+.theme-card:hover { border-color:var(--teal3); transform:translateY(-1px); }
+.theme-card.selected { border-color:var(--teal2); background:rgba(26,96,96,0.04); }
+.theme-card h3 { font-family:'Cinzel',serif; font-size:11px; color:var(--teal); margin-bottom:5px; }
+.theme-card p { font-size:12px; color:var(--text3); line-height:1.5; }
+
+/* PROPHECIES */
+.proph-list { display:flex; flex-direction:column; gap:12px; }
+.proph-item { background:var(--panel); border:1px solid var(--border); border-radius:3px; padding:16px 18px; box-shadow:0 1px 3px var(--shadow); display:grid; grid-template-columns:1fr auto; gap:14px; align-items:start; }
+.proph-item h3 { font-family:'Cinzel',serif; font-size:12px; color:var(--crimson); margin-bottom:5px; }
+.proph-item p { font-size:13px; color:var(--text2); line-height:1.6; }
+.fulfillment-box { background:rgba(26,96,96,0.07); border:1px solid rgba(26,96,96,0.22); border-radius:3px; padding:10px 12px; min-width:170px; }
+.fulfillment-box .fl { font-family:'Cinzel',serif; font-size:9px; letter-spacing:1.5px; color:var(--teal); text-transform:uppercase; margin-bottom:5px; }
+.fulfillment-box p { font-size:12px; color:var(--teal2); line-height:1.5; }
+
+/* FLASHCARDS */
+.fc-controls { display:flex; gap:7px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+.fc-btn { padding:6px 12px; background:var(--panel); border:1px solid var(--border2); color:var(--text2); cursor:pointer; font-family:'Cinzel',serif; font-size:9px; letter-spacing:1px; border-radius:3px; transition:all 0.18s; text-transform:uppercase; }
+.fc-btn:hover { background:rgba(139,92,42,0.07); color:var(--copper); border-color:var(--copper3); }
+.fc-btn.active { background:rgba(139,92,42,0.12); color:var(--copper); border-color:var(--copper); }
+.fc-counter { font-size:12px; color:var(--text3); margin-left:auto; font-family:'Cinzel',serif; }
+.fc-scene { perspective:1000px; height:250px; cursor:pointer; margin-bottom:12px; }
+.fc-inner { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.5s ease; }
+.fc-inner.flipped { transform:rotateY(180deg); }
+.fc-face { position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:3px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px; text-align:center; box-shadow:0 2px 8px var(--shadow); }
+.fc-front { background:var(--panel); border:1px solid var(--border2); }
+.fc-back { background:var(--bg2); border:1px solid var(--border); transform:rotateY(180deg); }
+.fc-type { font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+.fc-front .fc-type { color:var(--text3); }
+.fc-back .fc-type { color:var(--copper); }
+.fc-question { font-family:'Cinzel',serif; font-size:15px; color:var(--lapis); line-height:1.4; }
+.fc-answer { font-size:14px; color:var(--text); line-height:1.65; }
+.fc-source { font-size:11px; color:var(--text3); margin-top:10px; font-style:italic; }
+.fc-nav { display:flex; align-items:center; justify-content:center; gap:12px; }
+.fc-nav button { padding:8px 20px; background:var(--panel); border:1px solid var(--border2); color:var(--text2); cursor:pointer; font-family:'Cinzel',serif; font-size:11px; letter-spacing:1px; border-radius:3px; transition:all 0.18s; }
+.fc-nav button:hover { background:rgba(139,92,42,0.07); color:var(--copper); }
+.fc-hint { font-size:12px; color:var(--text3); font-style:italic; text-align:center; margin-bottom:10px; }
+
+/* TUTOR */
+.tutor-modes { display:flex; gap:7px; margin-bottom:12px; flex-wrap:wrap; }
+.mode-btn { padding:6px 12px; border-radius:3px; font-family:'Cinzel',serif; font-size:9px; letter-spacing:1px; cursor:pointer; border:1px solid; transition:all 0.18s; text-transform:uppercase; }
+.mode-btn.study { border-color:rgba(139,92,42,0.4); color:var(--copper); background:rgba(139,92,42,0.05); }
+.mode-btn.study.active { background:rgba(139,92,42,0.14); border-color:var(--copper); }
+.mode-btn.doctrine { border-color:rgba(42,74,122,0.4); color:var(--lapis2); background:rgba(42,74,122,0.04); }
+.mode-btn.doctrine.active { background:rgba(42,74,122,0.14); border-color:var(--lapis); }
+.mode-btn.challenge { border-color:rgba(122,32,32,0.4); color:var(--crimson2); background:rgba(122,32,32,0.04); }
+.mode-btn.challenge.active { background:rgba(122,32,32,0.13); border-color:var(--crimson); }
+.mode-btn.connect { border-color:rgba(26,96,96,0.4); color:var(--teal2); background:rgba(26,96,96,0.04); }
+.mode-btn.connect.active { background:rgba(26,96,96,0.13); border-color:var(--teal); }
+.quick-prompts { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.qp-btn { padding:4px 10px; background:var(--bg2); border:1px solid var(--border); color:var(--text3); cursor:pointer; font-size:12px; border-radius:20px; transition:all 0.18s; }
+.qp-btn:hover { border-color:var(--border2); color:var(--text2); }
+.chat-box { background:var(--bg); border:1px solid var(--border); border-radius:3px; height:290px; overflow-y:auto; padding:12px; margin-bottom:10px; display:flex; flex-direction:column; gap:10px; }
+.chat-msg { max-width:85%; padding:10px 14px; border-radius:3px; font-size:14px; line-height:1.65; }
+.chat-msg.user { align-self:flex-end; background:rgba(42,74,122,0.1); border:1px solid rgba(42,74,122,0.25); color:var(--text); }
+.chat-msg.ai { align-self:flex-start; background:var(--panel); border:1px solid var(--border); color:var(--text); }
+.chat-msg.system { align-self:center; background:transparent; border:none; color:var(--text3); font-style:italic; font-size:13px; text-align:center; }
+.chat-msg.loading { align-self:flex-start; background:var(--panel); border:1px solid var(--border); color:var(--text3); font-style:italic; }
+.chat-input-row { display:flex; gap:8px; }
+.chat-input { flex:1; background:var(--panel); border:1px solid var(--border2); color:var(--text); padding:8px 12px; font-family:'Cormorant Garamond',serif; font-size:15px; border-radius:3px; outline:none; transition:border-color 0.18s; }
+.chat-input:focus { border-color:var(--copper); }
+.chat-input::placeholder { color:var(--text3); }
+.send-btn { padding:8px 16px; background:rgba(139,92,42,0.1); border:1px solid var(--copper); color:var(--copper); cursor:pointer; font-family:'Cinzel',serif; font-size:10px; letter-spacing:1px; border-radius:3px; transition:all 0.18s; }
+.send-btn:hover { background:rgba(139,92,42,0.18); }
+.send-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--bg2); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--copper2); }
+
+/* MOBILE RESPONSIVE */
+@media(max-width:768px) {
+  .app { flex-direction:column; }
+  .sidebar { width:100%; min-width:100%; max-height:40vh; border-right:none; border-bottom:2px solid var(--border); overflow-y:auto; overflow-x:hidden; }
+  .main { height:60vh; }
+  .topbar { padding:12px 14px; }
+  .content { padding:14px; }
+  .sidebar-header { padding:14px 12px 10px; }
+  .sidebar-header h1 { font-size:12px; letter-spacing:1.5px; }
+  .sidebar-header .sub { font-size:10px; margin-top:2px; }
+  .nav-label { font-size:11px; padding:8px 12px 6px; }
+  .nav-item { font-size:12px; padding:7px 12px; }
+  #lang-container { margin:12px 8px; padding:0; }
+  #lang-en, #lang-es { padding:10px 8px !important; font-size:12px !important; }
+  .topbar-title { font-size:14px; }
+  .topbar-right { font-size:11px; }
+  .card { padding:14px 16px; font-size:14px; }
+  .books-grid { grid-template-columns:repeat(3,1fr); }
+  .doctrine-grid, .theme-grid { grid-template-columns:repeat(2,1fr); }
+  .char-grid { grid-template-columns:repeat(3,1fr); }
+  .five-grid { grid-template-columns:repeat(2,1fr); }
+  .stats-row { grid-template-columns:repeat(2,1fr); }
+  .two-col { grid-template-columns:1fr; }
+  .verse-block { font-size:13px; padding:10px 12px; }
+  .section-h h2 { font-size:15px; }
+  h2 { font-size:16px !important; }
+}
+
+@media(max-width:480px) {
+  .app { flex-direction:column; }
+  .sidebar { width:100%; min-width:100%; max-height:38vh; overflow-y:auto; }
+  .main { height:62vh; }
+  .sidebar-header h1 { font-size:11px; letter-spacing:1px; }
+  .sidebar-header .sub { font-size:9px; }
+  .topbar { padding:10px 12px; }
+  .topbar-title { font-size:13px; }
+  .topbar-right { font-size:10px; }
+  .content { padding:12px; }
+  .nav-label { font-size:10px; padding:6px 10px 4px; letter-spacing:1px; }
+  .nav-item { font-size:11px; padding:6px 10px; }
+  #lang-container { margin:10px 8px; }
+  #lang-en, #lang-es { padding:8px 6px !important; font-size:11px !important; }
+  .card { padding:12px 14px; font-size:13px; margin-bottom:10px; }
+  .stats-row { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .stat-box { padding:12px 10px; }
+  .stat-box h3 { font-size:16px; }
+  .stat-box p { font-size:10px; }
+  .books-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .doctrine-grid, .theme-grid { grid-template-columns:1fr; }
+  .char-grid { grid-template-columns:repeat(2,1fr); }
+  .five-grid { grid-template-columns:1fr; }
+  .book-card { padding:12px; }
+  .section-h { margin-bottom:14px; }
+  .section-h h2 { font-size:14px; }
+  .verse-block { font-size:12px; padding:9px 11px; margin:8px 0; }
+  .fc-scene { height:180px; }
+  h2 { font-size:15px !important; }
+  p { font-size:13px; line-height:1.6; }
+}
+
+@media(max-width:320px) {
+  .sidebar { max-height:35vh; }
+  .main { height:65vh; }
+  .sidebar-header h1 { font-size:10px; }
+  .nav-item { font-size:10px; padding:5px 8px; }
+  #lang-en, #lang-es { padding:6px 4px !important; font-size:10px !important; }
+  .topbar-title { font-size:12px; }
+  .card { padding:10px 12px; font-size:12px; }
+}
+
+@media(max-width:960px) {
+  .sidebar { width:195px; min-width:195px; }
+  .books-grid, .char-grid { grid-template-columns:repeat(3,1fr); }
+  .doctrine-grid, .theme-grid { grid-template-columns:repeat(2,1fr); }
+  .five-grid { grid-template-columns:repeat(3,1fr); }
+  .stats-row { grid-template-columns:repeat(3,1fr); }
+  .two-col { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body class="lang-en">
+<div class="app">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <h1 class="en-inline">Book of Mormon</h1><h1 class="es-inline">Libro de Mormón</h1>
+    <div class="sub en-inline">Study Dashboard</div><div class="sub es-inline">Tablero de Estudio</div>
+  </div>
+
+  <div id="lang-container" style="display:flex !important; visibility:visible !important; margin:14px 10px !important; padding:0 !important; background:linear-gradient(to bottom, #e8dcc8, #ddd4ba) !important; border:2px solid #8b5c2a !important; border-radius:6px !important; overflow:visible !important; box-shadow:0 3px 10px rgba(139,92,42,0.2) !important; z-index:50 !important;">
+    <a id="lang-en" onclick="setLang('en')" style="display:block !important; flex:1 !important; padding:12px 10px !important; text-align:center !important; background:#8b5c2a !important; color:#faf6ee !important; cursor:pointer !important; font-family:'Cinzel',serif !important; font-size:13px !important; font-weight:700 !important; letter-spacing:2px !important; text-decoration:none !important; border-right:2px solid #d4a060 !important; transition:all 0.3s !important; text-transform:uppercase !important;">English</a>
+    <a id="lang-es" onclick="setLang('es')" style="display:block !important; flex:1 !important; padding:12px 10px !important; text-align:center !important; background:#e8dcc8 !important; color:#8b5c2a !important; cursor:pointer !important; font-family:'Cinzel',serif !important; font-size:13px !important; font-weight:700 !important; letter-spacing:2px !important; text-decoration:none !important; transition:all 0.3s !important; text-transform:uppercase !important;">Español</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label"><span class="en-inline">Overview</span><span class="es-inline">Panorama</span></div>
+    <div class="nav-item active" onclick="showPanel('overview')"><span class="ni">⊕</span> <span class="en-inline">Introduction</span><span class="es-inline">Introducción</span></div>
+    <div class="nav-item" onclick="showPanel('five')"><span class="ni">★</span> <span class="en-inline">5 Key Chapters</span><span class="es-inline">5 Capítulos Clave</span></div>
+    <div class="nav-item" onclick="showPanel('timeline')"><span class="ni">↦</span> <span class="en-inline">Timeline</span><span class="es-inline">Cronología</span></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label"><span class="en-inline">All Books</span><span class="es-inline">Todos los Libros</span></div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(0)"><span class="ni">◉</span> <span class="en-inline">1 Nephi</span><span class="es-inline">1 Nefi</span></div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(1)"><span class="ni">◉</span> <span class="en-inline">2 Nephi</span><span class="es-inline">2 Nefi</span></div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(2)"><span class="ni">◉</span> <span class="en-inline">Jacob–Omni</span><span class="es-inline">Jacob–Omni</span></div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(3)"><span class="ni">◉</span> <span class="en-inline">Mosiah</span><span class="es-inline">Mosíah</span></div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(4)"><span class="ni">◉</span> Alma</div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(5)"><span class="ni">◉</span> <span class="en-inline">Helaman</span><span class="es-inline">Helamán</span></div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(6)"><span class="ni">◉</span> 3 <span class="en-inline">Nephi</span><span class="es-inline">Nefi</span></div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(7)"><span class="ni">◉</span> 4 <span class="en-inline">Nephi–Mormon</span><span class="es-inline">Nefi–Mormón</span></div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(8)"><span class="ni">◉</span> <span class="en-inline">Ether</span><span class="es-inline">Éter</span></div>
+    <div class="nav-item" onclick="showPanel('books');selectBook(9)"><span class="ni">◉</span> <span class="en-inline">Moroni</span><span class="es-inline">Moroni</span></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label"><span class="en-inline">Analysis</span><span class="es-inline">Análisis</span></div>
+    <div class="nav-item" onclick="showPanel('doctrines')"><span class="ni">✦</span> <span class="en-inline">Core Doctrines</span><span class="es-inline">Doctrinas Clave</span></div>
+    <div class="nav-item" onclick="showPanel('characters')"><span class="ni">◈</span> <span class="en-inline">Key Figures</span><span class="es-inline">Personajes Clave</span></div>
+    <div class="nav-item" onclick="showPanel('themes')"><span class="ni">⊞</span> <span class="en-inline">Major Themes</span><span class="es-inline">Temas Principales</span></div>
+    <div class="nav-item" onclick="showPanel('prophecies')"><span class="ni">◇</span> <span class="en-inline">Prophecies</span><span class="es-inline">Profecías</span></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label"><span class="en-inline">Study Tools</span><span class="es-inline">Herramientas</span></div>
+    <div class="nav-item" onclick="showPanel('flashcards')"><span class="ni">◻</span> <span class="en-inline">Flashcards</span><span class="es-inline">Tarjetas de Estudio</span></div>
+    <div class="nav-item" onclick="showPanel('tutor')"><span class="ni">✧</span> <span class="en-inline">AI Tutor</span><span class="es-inline">Tutor IA</span></div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">INTRODUCTION</div>
+    <div class="topbar-right"><span class="en-inline">~239 chapters · ~270,000 words</span><span class="es-inline">~239 capítulos · ~270,000 palabras</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="section-h"><h2><span class="en-inline">Book of Mormon</span><span class="es-inline">El Libro de Mormón</span></h2><div class="orn"></div></div>
+
+      <div class="stats-row">
+        <div class="stat-box"><span class="sv">15</span><span class="sl en-inline">Books</span><span class="sl es-inline">Libros</span></div>
+        <div class="stat-box"><span class="sv">239</span><span class="sl en-inline">Chapters</span><span class="sl es-inline">Capítulos</span></div>
+        <div class="stat-box"><span class="sv">6,604</span><span class="sl en-inline">Verses</span><span class="sl es-inline">Versículos</span></div>
+        <div class="stat-box"><span class="sv">~270k</span><span class="sl en-inline">Words</span><span class="sl es-inline">Palabras</span></div>
+        <div class="stat-box"><span class="sv">~1,000</span><span class="sl en-inline">Years</span><span class="sl es-inline">Años</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⊕ <span class="en-inline">What the Book of Mormon Is</span><span class="es-inline">¿Qué es el Libro de Mormón?</span></div>
+        <div class="en-text"><p style="font-size:15px;line-height:1.8;">The Book of Mormon presents itself as an abridgment of ancient records kept by prophets among peoples who migrated from the Near East to the Americas beginning ~600 BC. The compiler is Mormon (~385 AD), who abridges over a thousand years of records. His son Moroni completes the record, appends the Jaredite account (Ether), and writes his own epistle (Moroni). Published in 1830, it is the central scripture of The Church of Jesus Christ of Latter-day Saints.</p></div>
+        <div class="es-text"><p style="font-size:15px;line-height:1.8;">El Libro de Mormón se presenta como un compendio de registros antiguos guardados por profetas entre pueblos que emigraron del Cercano Oriente a las Américas alrededor del 600 a.C. El compilador principal es Mormón (~385 d.C.), quien abrevia más de mil años de anales. Su hijo Moroni concluye el registro, añade el relato de los jareditas (Éter) y escribe su propia epístola (Moroni). Publicado en 1830, es la escritura central de La Iglesia de Jesucristo de los Santos de los Últimos Días.</p></div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="tag tag-history"><span class="en-inline">~600 BC–421 AD</span><span class="es-inline">~600 a.C.–421 d.C.</span></span>
+          <span class="tag tag-doctrine"><span class="en-inline">Latter-day Scripture</span><span class="es-inline">Escritura de los Últimos Días</span></span>
+          <span class="tag tag-prophecy"><span class="en-inline">Messianic Focus</span><span class="es-inline">Enfoque Mesiánico</span></span>
+          <span class="tag tag-wisdom"><span class="en-inline">Witness of Christ</span><span class="es-inline">Testigo de Cristo</span></span>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">◉ <span class="en-inline">The Three Peoples</span><span class="es-inline">Los Tres Pueblos</span></div>
+          <div class="en-text"><p style="font-size:13px;line-height:1.7;color:var(--text2);"><strong style="color:var(--lapis);">Nephites</strong> — descendants of Nephi. Keepers of the record. End in 385 AD at the battle of Cumorah.<br><br><strong style="color:var(--copper);">Lamanites</strong> — descendants of Laman and Lemuel. Often antagonists; promised survival and restoration.<br><br><strong style="color:var(--teal);">Jaredites</strong> — from the Tower of Babel. Separate arc; self-destruct as a cautionary parallel.</p></div>
+          <div class="es-text"><p style="font-size:13px;line-height:1.7;color:var(--text2);"><strong style="color:var(--lapis);">Nefitas</strong> — descendientes de Nefi. Custodios del registro. Su historia termina en 385 d.C. en la batalla de Cumorah.<br><br><strong style="color:var(--copper);">Lamanitas</strong> — descendientes de Lamán y Lemuel. Con frecuencia antagonistas; se les promete supervivencia y restauración.<br><br><strong style="color:var(--teal);">Jareditas</strong> — del tiempo de la Torre de Babel. Su arco histórico termina en autodestrucción como advertencia paralela.</p></div>
+        </div>
+        <div class="card">
+          <div class="card-title">◉ <span class="en-inline">The Central Claim</span><span class="es-inline">El Testimonio Central</span></div>
+          <div class="verse-block en-text">"And we talk of Christ, we rejoice in Christ, we preach of Christ, we prophesy of Christ, and we write according to our prophecies, that our children may know to what source they may look for a remission of their sins."<span class="verse-ref">2 Nephi 25:26 — Nephi</span></div>
+          <div class="verse-block es-text">"Y hablamos de Cristo, nos regocijamos en Cristo, predicamos de Cristo, profetizamos de Cristo, y escribimos según nuestras profecías, para que nuestros hijos sepan a qué fuente pueden acudir para remisión de sus pecados."<span class="verse-ref">2 Nefi 25:26 — Nefi</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⊞ <span class="en-inline">Quick Navigation</span><span class="es-inline">Navegación Rápida</span></div>
+        <div class="books-grid">
+          <div class="book-card" onclick="showPanel('books');selectBook(0)"><div class="bname"><span class="en-inline">1 Nephi</span><span class="es-inline">1 Nefi</span></div><div class="bchaps">22 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate">~600–570 BC</div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(1)"><div class="bname"><span class="en-inline">2 Nephi</span><span class="es-inline">2 Nefi</span></div><div class="bchaps">33 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate">~570–545 BC</div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(2)"><div class="bname">Jacob</div><div class="bchaps">7 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate">~544 BC</div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(2)"><div class="bname"><span class="en-inline">Enos–Omni</span><span class="es-inline">Enós–Omni</span></div><div class="bchaps">5 <span class="en-inline">books</span><span class="es-inline">libros</span></div><div class="bdate">~420–130 BC</div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(3)"><div class="bname"><span class="en-inline">Mosiah</span><span class="es-inline">Mosíah</span></div><div class="bchaps">29 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate">~200–91 BC</div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(4)"><div class="bname">Alma</div><div class="bchaps">63 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate">~91–52 BC</div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(5)"><div class="bname"><span class="en-inline">Helaman</span><span class="es-inline">Helamán</span></div><div class="bchaps">16 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate">~52–1 BC</div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(6)"><div class="bname">3 <span class="en-inline">Nephi</span><span class="es-inline">Nefi</span></div><div class="bchaps">30 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate">~1 BC–35 AD</div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(7)"><div class="bname"><span class="en-inline">Mormon</span><span class="es-inline">Mormón</span></div><div class="bchaps">9 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate">~321–385 AD</div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(8)"><div class="bname"><span class="en-inline">Ether</span><span class="es-inline">Éter</span></div><div class="bchaps">15 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate"><span class="en-inline">Jaredite</span><span class="es-inline">Jaredita</span></div></div>
+          <div class="book-card" onclick="showPanel('books');selectBook(9)"><div class="bname">Moroni</div><div class="bchaps">10 <span class="en-inline">ch.</span><span class="es-inline">cap.</span></div><div class="bdate">~421 AD</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 KEY CHAPTERS -->
+    <div class="panel" id="panel-five">
+      <div class="section-h"><h2><span class="en-inline">Five Key Chapters</span><span class="es-inline">Cinco Capítulos Clave</span></h2><div class="orn"></div></div>
+      <div class="five-grid">
+        <div class="five-card active" onclick="selectFive(0)" id="fc5-0"><span class="fc-ref"><span class="en-inline">2 Nephi 2</span><span class="es-inline">2 Nefi 2</span></span><span class="fc-title"><span class="en-inline">The Fall, Agency & Opposition</span><span class="es-inline">La Caída, el Albedrío y la Oposición</span></span></div>
+        <div class="five-card" onclick="selectFive(1)" id="fc5-1"><span class="fc-ref">3 <span class="en-inline">Nephi</span><span class="es-inline">Nefi</span> 11</span><span class="fc-title"><span class="en-inline">Christ Appears</span><span class="es-inline">Cristo Se Aparece</span></span></div>
+        <div class="five-card" onclick="selectFive(2)" id="fc5-2"><span class="fc-ref">3 <span class="en-inline">Nephi</span><span class="es-inline">Nefi</span> 15</span><span class="fc-title"><span class="en-inline">The Other Sheep</span><span class="es-inline">Las Otras Ovejas</span></span></div>
+        <div class="five-card" onclick="selectFive(3)" id="fc5-3"><span class="fc-ref"><span class="en-inline">Ether</span><span class="es-inline">Éter</span> 12</span><span class="fc-title"><span class="en-inline">Faith & Weakness</span><span class="es-inline">Fe y Debilidad</span></span></div>
+        <div class="five-card" onclick="selectFive(4)" id="fc5-4"><span class="fc-ref">Moroni 10</span><span class="fc-title"><span class="en-inline">The Final Testimony</span><span class="es-inline">El Testimonio Final</span></span></div>
+      </div>
+
+      <div class="five-detail visible" id="fd-0">
+        <div class="card">
+          <div class="card-title en-inline">2 NEPHI 2 — Lehi's Discourse on Agency and the Fall</div>
+          <div class="card-title es-inline">2 NEFI 2 — El Discurso de Lehi sobre el Albedrío y la Caída</div>
+          <div class="two-col">
+            <div>
+              <div class="en-text"><p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px;">Lehi's farewell sermon to Jacob — the most philosophically dense chapter in the BOM. Addresses why suffering, opposition, and moral choice exist.</p></div>
+              <div class="es-text"><p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px;">El sermón de despedida de Lehi a Jacob — el capítulo filosóficamente más denso del Libro de Mormón. Aborda por qué existen el sufrimiento, la oposición y la elección moral.</p></div>
+              <div class="verse-block en-text">"For it must needs be, that there is an opposition in all things... righteousness could not be brought to pass, neither wickedness, neither holiness nor misery."<span class="verse-ref">2 Nephi 2:11</span></div>
+              <div class="verse-block es-text">"Porque es indispensable que haya una oposición en todas las cosas. Si no fuera así... no podría llevarse a efecto la rectitud ni tampoco la maldad, ni la santidad ni la miseria."<span class="verse-ref">2 Nefi 2:11</span></div>
+              <div class="verse-block en-text">"Adam fell that men might be; and men are, that they might have joy."<span class="verse-ref">2 Nephi 2:25</span></div>
+              <div class="verse-block es-text">"Adán cayó para que los hombres existiesen; y existen los hombres para que tengan gozo."<span class="verse-ref">2 Nefi 2:25</span></div>
+            </div>
+            <div>
+              <div class="card" style="margin-bottom:10px;">
+                <div class="card-title" style="font-size:9px;"><span class="en-inline">CORE DOCTRINES</span><span class="es-inline">DOCTRINAS CLAVE</span></div>
+                <ul style="font-size:12px;color:var(--text2);line-height:1.8;padding-left:14px;">
+                  <li><span class="en-inline">Opposition is cosmologically necessary</span><span class="es-inline">La oposición es cosmológicamente necesaria</span></li>
+                  <li><span class="en-inline">The Fall was divinely intended</span><span class="es-inline">La Caída fue un designio divino</span></li>
+                  <li><span class="en-inline">Agency is the central gift</span><span class="es-inline">El albedrío es el don central</span></li>
+                  <li><span class="en-inline">Mercy cannot rob justice (v. 13)</span><span class="es-inline">La misericordia no puede robar a la justicia (v. 13)</span></li>
+                  <li><span class="en-inline">Joy is the telos of human existence</span><span class="es-inline">El gozo es el fin de la existencia humana</span></li>
+                </ul>
+              </div>
+              <div class="card">
+                <div class="card-title" style="font-size:9px;"><span class="en-inline">KEY INSIGHT</span><span class="es-inline">IDEA CLAVE</span></div>
+                <div class="en-text"><p style="font-size:12px;color:var(--text2);line-height:1.65;">"Adam fell that men might be" is the BOM's most radical claim: the Fall is not the problem — it is the solution. Without it, humanity remains in unchanging innocence that is not existence in any meaningful sense.</p></div>
+                <div class="es-text"><p style="font-size:12px;color:var(--text2);line-height:1.65;">"Adán cayó para que los hombres existiesen" es la afirmación más radical del Libro de Mormón: la Caída no es el problema — es la solución. Sin ella, la humanidad permanecería en una inocencia inmutable que no es existencia en ningún sentido significativo.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="five-detail" id="fd-1">
+        <div class="card">
+          <div class="card-title en-inline">3 NEPHI 11 — The Appearance of the Resurrected Christ</div>
+          <div class="card-title es-inline">3 NEFI 11 — La Aparición del Cristo Resucitado</div>
+          <div class="two-col">
+            <div>
+              <div class="en-text"><p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px;">The climactic chapter: the resurrected Christ descends to 2,500 Nephites at the temple in Bountiful. Each person individually feels his wounds.</p></div>
+              <div class="es-text"><p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px;">El capítulo culminante: el Cristo resucitado desciende ante 2,500 nefitas en el templo de la tierra de Abundancia. Cada persona palpa individualmente sus heridas.</p></div>
+              <div class="verse-block en-text">"Behold, I am Jesus Christ, whom the prophets testified shall come... I am the light and the life of the world; and I have drunk out of that bitter cup."<span class="verse-ref">3 Nephi 11:10–11</span></div>
+              <div class="verse-block es-text">"He aquí, soy Jesucristo, de quien los profetas testificaron que había de venir... soy la luz y la vida del mundo; y he bebido de esa amarga copa."<span class="verse-ref">3 Nefi 11:10–11</span></div>
+              <div class="verse-block en-text">"Arise and come forth unto me, that ye may thrust your hands into my side, and also that ye may feel the prints of the nails in my hands and in my feet."<span class="verse-ref">3 Nephi 11:14</span></div>
+              <div class="verse-block es-text">"Levantaos y venid a mí, para que metáis vuestras manos en mi costado, y también para que palméis las marcas de los clavos en mis manos y en mis pies."<span class="verse-ref">3 Nefi 11:14</span></div>
+            </div>
+            <div>
+              <div class="card">
+                <div class="card-title" style="font-size:9px;"><span class="en-inline">KEY INSIGHT</span><span class="es-inline">IDEA CLAVE</span></div>
+                <div class="en-text"><p style="font-size:12px;color:var(--text2);line-height:1.65;">The wounds are not erased. The resurrected Christ presents his scars as proof of genuine sacrifice. The chapter insists on physical, tactile verification — the Atonement happened in matter and left marks in matter. Christ also immediately prohibits contention (v. 28–29) — the Cain-pattern's antidote.</p></div>
+                <div class="es-text"><p style="font-size:12px;color:var(--text2);line-height:1.65;">Las heridas no son borradas. El Cristo resucitado presenta sus cicatrices como prueba del sacrificio genuino. El capítulo insiste en la verificación física y táctil — la Expiación ocurrió en la materia y dejó marcas en la materia. Cristo también prohíbe inmediatamente las disputas (v. 28–29), el antídoto al patrón de Caín.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="five-detail" id="fd-2">
+        <div class="card">
+          <div class="card-title en-inline">3 NEPHI 15 — The Other Sheep</div>
+          <div class="card-title es-inline">3 NEFI 15 — Las Otras Ovejas</div>
+          <div class="two-col">
+            <div>
+              <div class="verse-block en-text">"Ye are they of whom I said: Other sheep I have which are not of this fold; them also I must bring, and they shall hear my voice."<span class="verse-ref">3 Nephi 15:21</span></div>
+              <div class="verse-block es-text">"Vosotros sois aquellos de quienes dije: Tengo otras ovejas que no son de este redil; también a éstas debo traer, y oirán mi voz."<span class="verse-ref">3 Nefi 15:21</span></div>
+              <div class="en-text"><p style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:10px;">Christ explains that John 10:16 referred specifically to the Nephites — and implies still more peoples beyond them. The covenant is not bounded by any single tradition.</p></div>
+              <div class="es-text"><p style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:10px;">Cristo explica que Juan 10:16 se refería específicamente a los nefitas, e insinúa que hay aún más pueblos. El convenio no está limitado por ninguna tradición particular.</p></div>
+            </div>
+            <div>
+              <div class="card">
+                <div class="card-title" style="font-size:9px;"><span class="en-inline">IMPLICATIONS</span><span class="es-inline">IMPLICACIONES</span></div>
+                <ul style="font-size:12px;color:var(--text2);line-height:1.8;padding-left:14px;">
+                  <li><span class="en-inline">The BOM fulfills John 10:16 literally</span><span class="es-inline">El LdM cumple Juan 10:16 literalmente</span></li>
+                  <li><span class="en-inline">God's covenant is universal, not tribal</span><span class="es-inline">El convenio de Dios es universal, no tribal</span></li>
+                  <li><span class="en-inline">Revelation is ongoing, not closed</span><span class="es-inline">La revelación es continua, no cerrada</span></li>
+                  <li><span class="en-inline">Other peoples also received the word</span><span class="es-inline">Otros pueblos también recibieron la palabra</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="five-detail" id="fd-3">
+        <div class="card">
+          <div class="card-title en-inline">ETHER 12 — Moroni on Faith</div>
+          <div class="card-title es-inline">ÉTER 12 — Moroni sobre la Fe</div>
+          <div class="two-col">
+            <div>
+              <div class="verse-block en-text">"Ye receive no witness until after the trial of your faith."<span class="verse-ref">Ether 12:6</span></div>
+              <div class="verse-block es-text">"No recibiréis ningún testimonio hasta después de la prueba de vuestra fe."<span class="verse-ref">Éter 12:6</span></div>
+              <div class="verse-block en-text">"My grace is sufficient for all men that humble themselves before me; for if they humble themselves before me, and have faith in me, then will I make weak things become strong unto them."<span class="verse-ref">Ether 12:27</span></div>
+              <div class="verse-block es-text">"Mi gracia es suficiente para todos los hombres que se humillan ante mí; porque si se humillan ante mí, y tienen fe en mí, entonces haré que las cosas débiles lleguen a ser fuertes para ellos."<span class="verse-ref">Éter 12:27</span></div>
+            </div>
+            <div>
+              <div class="card">
+                <div class="card-title" style="font-size:9px;"><span class="en-inline">KEY INSIGHT</span><span class="es-inline">IDEA CLAVE</span></div>
+                <div class="en-text"><p style="font-size:12px;color:var(--text2);line-height:1.65;">The witness comes after the trial, not before. Moroni writes with personal awareness of his weakness as a writer; Christ's answer is not reassurance but reframing: weakness itself is the doorway through which grace enters. Faith is action under uncertainty, not belief under certainty.</p></div>
+                <div class="es-text"><p style="font-size:12px;color:var(--text2);line-height:1.65;">El testimonio llega después de la prueba, no antes. Moroni escribe con conciencia personal de su debilidad como escritor; la respuesta de Cristo no es tranquilizadora sino transformadora: la debilidad misma es la puerta por la cual entra la gracia. La fe es acción bajo incertidumbre, no creencia bajo certeza.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="five-detail" id="fd-4">
+        <div class="card">
+          <div class="card-title en-inline">MORONI 10 — The Final Testimony and Epistemological Challenge</div>
+          <div class="card-title es-inline">MORONI 10 — El Testimonio Final y el Reto Epistemológico</div>
+          <div class="two-col">
+            <div>
+              <div class="verse-block en-text">"Ask God, the Eternal Father, in the name of Christ, if these things are not true; and if ye shall ask with a sincere heart, with real intent, having faith in Christ, he will manifest the truth of it unto you, by the power of the Holy Ghost."<span class="verse-ref">Moroni 10:4</span></div>
+              <div class="verse-block es-text">"Preguntadle a Dios el Padre Eterno, en el nombre de Cristo, si estas cosas no son verdaderas; y si pedís con un corazón sincero, con intención real, teniendo fe en Cristo, él os manifestará la verdad de ellas por el poder del Espíritu Santo."<span class="verse-ref">Moroni 10:4</span></div>
+              <div class="verse-block en-text">"Yea, come unto Christ, and be perfected in him, and deny yourselves of all ungodliness."<span class="verse-ref">Moroni 10:32</span></div>
+              <div class="verse-block es-text">"Sí, venid a Cristo y perfeccionaos en él, y absteneos de toda impiedad."<span class="verse-ref">Moroni 10:32</span></div>
+            </div>
+            <div>
+              <div class="card">
+                <div class="card-title" style="font-size:9px;"><span class="en-inline">THE CONDITIONS</span><span class="es-inline">LAS CONDICIONES</span></div>
+                <div class="en-text"><p style="font-size:12px;color:var(--text2);line-height:1.65;"><strong>Sincere heart</strong> — addresses motivation.<br><br><strong>Real intent</strong> — willingness to act on the answer, not mere curiosity.<br><br><strong>Faith in Christ</strong> — the orientation of the whole self.<br><br>All three exclude the detached spectator. Truth of this kind cannot be known without existential commitment.</p></div>
+                <div class="es-text"><p style="font-size:12px;color:var(--text2);line-height:1.65;"><strong>Corazón sincero</strong> — apunta a la motivación.<br><br><strong>Intención real</strong> — disposición de actuar según la respuesta, no mera curiosidad.<br><br><strong>Fe en Cristo</strong> — la orientación del ser entero.<br><br>Las tres condiciones excluyen al espectador distante. La verdad de esta naturaleza no puede conocerse sin compromiso existencial.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="panel" id="panel-timeline">
+      <div class="section-h"><h2><span class="en-inline">Historical Timeline</span><span class="es-inline">Cronología Histórica</span></h2><div class="orn"></div></div>
+      <div class="tl-strip">
+        <div class="tl-seg tl-nephi"><span class="tl-name"><span class="en-inline">Lehi's Family Leaves Jerusalem</span><span class="es-inline">La familia de Lehi deja Jerusalén</span></span><span class="tl-date">~600 BC</span></div>
+        <div class="tl-seg tl-nephi"><span class="tl-name"><span class="en-inline">Arrive in Promised Land</span><span class="es-inline">Llegan a la tierra prometida</span></span><span class="tl-date">~589 BC</span></div>
+        <div class="tl-seg tl-nephi"><span class="tl-name"><span class="en-inline">Nephite–Lamanite Split</span><span class="es-inline">División nefita–lamanita</span></span><span class="tl-date">~570 BC</span></div>
+        <div class="tl-seg tl-mosiah"><span class="tl-name"><span class="en-inline">King Benjamin's Address</span><span class="es-inline">Discurso del rey Benjamín</span></span><span class="tl-date">~124 BC</span></div>
+        <div class="tl-seg tl-mosiah"><span class="tl-name"><span class="en-inline">Ammon's Mission</span><span class="es-inline">Misión de Amón</span></span><span class="tl-date">~90 BC</span></div>
+        <div class="tl-seg tl-alma"><span class="tl-name"><span class="en-inline">Alma & the Wars</span><span class="es-inline">Alma y las guerras</span></span><span class="tl-date">~100–52 BC</span></div>
+        <div class="tl-seg tl-alma"><span class="tl-name"><span class="en-inline">Gadianton Robbers</span><span class="es-inline">Ladrones de Gadiantón</span></span><span class="tl-date">~52 BC</span></div>
+        <div class="tl-seg tl-alma"><span class="tl-name"><span class="en-inline">Samuel the Lamanite</span><span class="es-inline">Samuel el Lamanita</span></span><span class="tl-date">~6 BC</span></div>
+        <div class="tl-seg tl-christ"><span class="tl-name"><span class="en-inline">Night Without Darkness</span><span class="es-inline">La noche sin oscuridad</span></span><span class="tl-date">~1 BC</span></div>
+        <div class="tl-seg tl-christ"><span class="tl-name"><span class="en-inline">Christ Appears (3 Ne 11)</span><span class="es-inline">Cristo aparece (3 Ne 11)</span></span><span class="tl-date">~34 AD</span></div>
+        <div class="tl-seg tl-christ"><span class="tl-name"><span class="en-inline">200 Years of Peace</span><span class="es-inline">200 años de paz</span></span><span class="tl-date">34–200 AD</span></div>
+        <div class="tl-seg tl-end"><span class="tl-name"><span class="en-inline">Mormon Compiles the Record</span><span class="es-inline">Mormón compila el registro</span></span><span class="tl-date">~360–385 AD</span></div>
+        <div class="tl-seg tl-end"><span class="tl-name"><span class="en-inline">Battle of Cumorah</span><span class="es-inline">Batalla de Cumorah</span></span><span class="tl-date">~385 AD</span></div>
+        <div class="tl-seg tl-end"><span class="tl-name"><span class="en-inline">Moroni Buries the Plates</span><span class="es-inline">Moroni entierra las planchas</span></span><span class="tl-date">~421 AD</span></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">◉ <span class="en-inline">The Jaredite Arc (Ether)</span><span class="es-inline">El Arco Jaredita (Éter)</span></div>
+          <div class="en-text"><p style="font-size:13px;line-height:1.7;color:var(--text2);">A separate civilization from the time of the Tower of Babel (~2200 BC). They travel to the Americas, build a great nation, fall into pride and secret combinations, and destroy themselves in a final battle — one survivor, Coriantumr. Their record is abridged by Moroni as Ether, functioning as a cautionary parallel to the Nephite arc.</p></div>
+          <div class="es-text"><p style="font-size:13px;line-height:1.7;color:var(--text2);">Una civilización separada desde el tiempo de la Torre de Babel (~2200 a.C.). Viajan a las Américas, construyen una gran nación, caen en la soberbia y las combinaciones secretas, y se destruyen en una batalla final — con un solo sobreviviente, Coriantumr. Su registro es abreviado por Moroni como Éter, funcionando como un paralelo de advertencia al arco nefita.</p></div>
+        </div>
+        <div class="card">
+          <div class="card-title">◉ <span class="en-inline">The Pride Cycle</span><span class="es-inline">El Ciclo del Orgullo</span></div>
+          <div class="en-text"><p style="font-size:13px;line-height:1.7;color:var(--text2);">The dominant pattern Mormon identifies: <strong>righteousness → prosperity → pride → wickedness → destruction → humility → righteousness</strong>. He watches his own people complete the cycle for the last time, knowing they will not repent, and compiles the record as a warning to future readers.</p></div>
+          <div class="es-text"><p style="font-size:13px;line-height:1.7;color:var(--text2);">El patrón dominante que Mormón identifica: <strong>rectitud → prosperidad → orgullo → maldad → destrucción → humildad → rectitud</strong>. Observa cómo su propio pueblo completa el ciclo por última vez, sabiendo que no se arrepentirán, y compila el registro como advertencia para lectores futuros.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKS -->
+    <div class="panel" id="panel-books">
+      <div class="section-h"><h2 id="book-title">Book Detail</h2><div class="orn"></div></div>
+      <div id="book-content"></div>
+    </div>
+
+    <!-- DOCTRINES -->
+    <div class="panel" id="panel-doctrines">
+      <div class="section-h"><h2><span class="en-inline">Core Doctrines</span><span class="es-inline">Doctrinas Fundamentales</span></h2><div class="orn"></div></div>
+      <div class="doctrine-grid" id="doctrine-grid"></div>
+      <div class="doctrine-detail" id="doctrine-detail"></div>
+    </div>
+
+    <!-- CHARACTERS -->
+    <div class="panel" id="panel-characters">
+      <div class="section-h"><h2><span class="en-inline">Key Figures</span><span class="es-inline">Personajes Clave</span></h2><div class="orn"></div></div>
+      <div class="char-grid" id="char-grid"></div>
+      <div class="char-detail" id="char-detail"></div>
+    </div>
+
+    <!-- THEMES -->
+    <div class="panel" id="panel-themes">
+      <div class="section-h"><h2><span class="en-inline">Major Themes</span><span class="es-inline">Temas Principales</span></h2><div class="orn"></div></div>
+      <div class="theme-grid" id="theme-grid"></div>
+      <div class="theme-detail" id="theme-detail"></div>
+    </div>
+
+    <!-- PROPHECIES -->
+    <div class="panel" id="panel-prophecies">
+      <div class="section-h"><h2><span class="en-inline">Messianic Prophecies</span><span class="es-inline">Profecías Mesiánicas</span></h2><div class="orn"></div></div>
+      <div class="proph-list" id="proph-list"></div>
+    </div>
+
+    <!-- FLASHCARDS -->
+    <div class="panel" id="panel-flashcards">
+      <div class="section-h"><h2><span class="en-inline">Flashcards</span><span class="es-inline">Tarjetas de Estudio</span></h2><div class="orn"></div></div>
+      <div class="fc-controls">
+        <button class="fc-btn active" onclick="filterCards('all',event)"><span class="en-inline">All</span><span class="es-inline">Todas</span></button>
+        <button class="fc-btn" onclick="filterCards('doctrine',event)"><span class="en-inline">Doctrine</span><span class="es-inline">Doctrina</span></button>
+        <button class="fc-btn" onclick="filterCards('history',event)"><span class="en-inline">History</span><span class="es-inline">Historia</span></button>
+        <button class="fc-btn" onclick="filterCards('person',event)"><span class="en-inline">People</span><span class="es-inline">Personajes</span></button>
+        <button class="fc-btn" onclick="filterCards('verse',event)"><span class="en-inline">Verses</span><span class="es-inline">Versículos</span></button>
+        <button class="fc-btn" onclick="shuffleFC()">⇌ <span class="en-inline">Shuffle</span><span class="es-inline">Mezclar</span></button>
+        <span class="fc-counter" id="fc-counter">1 / 35</span>
+      </div>
+      <div class="fc-scene" onclick="flipCard()">
+        <div class="fc-inner" id="fc-inner">
+          <div class="fc-face fc-front">
+            <div class="fc-type" id="fc-type">DOCTRINE</div>
+            <div class="fc-question" id="fc-question">Loading...</div>
+          </div>
+          <div class="fc-face fc-back">
+            <div class="fc-type"><span class="en-inline">ANSWER</span><span class="es-inline">RESPUESTA</span></div>
+            <div class="fc-answer" id="fc-answer">Loading...</div>
+            <div class="fc-source" id="fc-source"></div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-hint"><span class="en-inline">Click card to flip</span><span class="es-inline">Haz clic para voltear</span></div>
+      <div class="fc-nav">
+        <button onclick="prevCard()">← <span class="en-inline">Prev</span><span class="es-inline">Anterior</span></button>
+        <button onclick="nextCard()"><span class="en-inline">Next</span><span class="es-inline">Siguiente</span> →</button>
+      </div>
+    </div>
+
+    <!-- AI TUTOR -->
+    <div class="panel" id="panel-tutor">
+      <div class="section-h"><h2><span class="en-inline">AI Tutor</span><span class="es-inline">Tutor IA</span></h2><div class="orn"></div></div>
+      <div class="card">
+        <div class="card-title">✧ <span class="en-inline">Mode</span><span class="es-inline">Modo</span></div>
+        <div class="tutor-modes">
+          <button class="mode-btn study active" onclick="setMode('study')"><span class="en-inline">Study Guide</span><span class="es-inline">Guía de Estudio</span></button>
+          <button class="mode-btn doctrine" onclick="setMode('doctrine')"><span class="en-inline">Deep Doctrine</span><span class="es-inline">Doctrina Profunda</span></button>
+          <button class="mode-btn challenge" onclick="setMode('challenge')"><span class="en-inline">Challenge Me</span><span class="es-inline">Desafíame</span></button>
+          <button class="mode-btn connect" onclick="setMode('connect')"><span class="en-inline">Cross-References</span><span class="es-inline">Referencias Cruzadas</span></button>
+        </div>
+        <div class="quick-prompts" id="quick-prompts"></div>
+        <div class="chat-box" id="chat-box">
+          <div class="chat-msg system" id="tutor-welcome">Ask anything about the Book of Mormon.</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" placeholder="" onkeydown="if(event.key==='Enter')sendMessage()">
+          <button class="send-btn" id="send-btn" onclick="sendMessage()"><span class="en-inline">Send</span><span class="es-inline">Enviar</span></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// ── LANGUAGE ──
+let lang = 'en';
+function setLang(l) {
+  lang = l;
+  document.body.className = 'lang-' + l;
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.getElementById('btn-es').classList.toggle('active', l==='es');
+  
+  // Update language button styles
+  const enBtn = document.getElementById('lang-en');
+  const esBtn = document.getElementById('lang-es');
+  if (enBtn && esBtn) {
+    if (l === 'en') {
+      enBtn.style.background = '#8b5c2a';
+      enBtn.style.color = '#faf6ee';
+      enBtn.style.fontWeight = '800';
+      esBtn.style.background = '#e8dcc8';
+      esBtn.style.color = '#8b5c2a';
+      esBtn.style.fontWeight = '600';
+    } else {
+      esBtn.style.background = '#8b5c2a';
+      esBtn.style.color = '#faf6ee';
+      esBtn.style.fontWeight = '800';
+      enBtn.style.background = '#e8dcc8';
+      enBtn.style.color = '#8b5c2a';
+      enBtn.style.fontWeight = '600';
+    }
+  }
+  
+  // Explicitly set display for all language elements
+  document.querySelectorAll('.en-text, .en-inline, .en').forEach(el => {
+    el.style.display = (l === 'en') ? (el.classList.contains('en-inline') ? 'inline' : 'block') : 'none';
+  });
+  document.querySelectorAll('.es-text, .es-inline, .es').forEach(el => {
+    el.style.display = (l === 'es') ? (el.classList.contains('es-inline') ? 'inline' : 'block') : 'none';
+  });
+  
+  const activePanel = document.querySelector('.panel.active');
+  if (activePanel) {
+    const id = activePanel.id.replace('panel-', '');
+    const titles = titleMap[id];
+    if (titles) document.getElementById('topbar-title').textContent = titles[l==='en'?0:1].toUpperCase();
+  }
+  renderAll();
+  updateCard();
+  updateTutorUI();
+}
+
+function t(en, es) { return lang === 'en' ? en : es; }
+
+// ── NAV ──
+const titleMap = {
+  overview: ['Introduction','Introducción'], five:['5 Key Chapters','5 Capítulos Clave'],
+  timeline:['Timeline','Cronología'], books:['Book Detail','Detalle del Libro'],
+  doctrines:['Core Doctrines','Doctrinas Fundamentales'], characters:['Key Figures','Personajes Clave'],
+  themes:['Major Themes','Temas Principales'], prophecies:['Prophecies','Profecías'],
+  flashcards:['Flashcards','Tarjetas de Estudio'], tutor:['AI Tutor','Tutor IA']
+};
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const p = document.getElementById('panel-'+id);
+  if(p) p.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
+  });
+  const titles = titleMap[id]||[id,id];
+  document.getElementById('topbar-title').textContent = titles[lang==='en'?0:1].toUpperCase();
+  document.querySelector('.main').scrollTop = 0;
+}
+
+// ── 5 KEY CHAPTERS ──
+function selectFive(i) {
+  document.querySelectorAll('[id^="fc5-"]').forEach((c,j)=>c.classList.toggle('active',j===i));
+  document.querySelectorAll('[id^="fd-"]').forEach((d,j)=>d.classList.toggle('visible',j===i));
+}
+
+// ── BOOKS ──
+const books = [
+  {
+    en:{name:'1 Nephi',date:'~600–570 BC',chapters:22,author:'Nephi son of Lehi',
+    summary:'The founding narrative. Lehi receives a vision and leads his family from Jerusalem. Nephi obtains the brass plates (killing Laban), the family builds a ship and crosses to the promised land. Includes the Tree of Life vision (ch. 8) and Nephi\'s expanded prophetic vision (chs. 11–14).',
+    key_chapters:['1–2','3–4','8','11–14','17–18'],
+    key_notes:['Lehi\'s call / family leaves','Brass plates / Laban','Tree of Life dream','Nephi\'s expanded vision','Ship building / ocean voyage'],
+    key_verses:[{v:'"I will go and do the things which the Lord hath commanded, for I know that the Lord giveth no commandments unto the children of men, save he shall prepare a way."',r:'1 Nephi 3:7'}],
+    doctrines:['God commands impossible things then prepares a way','Tree of Life = love of God / Atonement','Brass plates as expanded scripture'],
+    themes:['Obedience vs. resentment','Vision as divine communication','Family conflict as theological drama']},
+    es:{name:'1 Nefi',date:'~600–570 a.C.',chapters:22,author:'Nefi hijo de Lehi',
+    summary:'La narrativa fundacional. Lehi recibe una visión y guía a su familia desde Jerusalén. Nefi obtiene las planchas de bronce (matando a Labán), la familia construye un barco y cruza a la tierra prometida. Incluye la visión del árbol de la vida (cap. 8) y la visión profética ampliada de Nefi (caps. 11–14).',
+    key_chapters:['1–2','3–4','8','11–14','17–18'],
+    key_notes:['El llamado de Lehi / la familia parte','Planchas de bronce / Labán','Sueño del árbol de la vida','Visión ampliada de Nefi','Construcción del barco / viaje oceánico'],
+    key_verses:[{v:'"Iré y haré las cosas que el Señor ha mandado, pues sé que el Señor no da mandamientos a los hijos de los hombres sin antes prepararles el camino."',r:'1 Nefi 3:7'}],
+    doctrines:['Dios manda cosas imposibles y luego prepara el camino','Árbol de la vida = amor de Dios / Expiación','Las planchas de bronce como escritura ampliada'],
+    themes:['Obediencia vs. resentimiento','La visión como comunicación divina','El conflicto familiar como drama teológico']}
+  },
+  {
+    en:{name:'2 Nephi',date:'~570–545 BC',chapters:33,author:'Nephi son of Lehi',
+    summary:'The most doctrinally dense book. Opens with Lehi\'s final blessings (the Fall and agency discourse in ch. 2). Dominated by Isaiah quotations (chs. 7–8, 12–24) with Nephi\'s commentary. Closes with Nephi\'s testimony and the doctrine of salvation (chs. 25–33).',
+    key_chapters:['2','4','9','25','31','33'],
+    key_notes:['The Fall & Agency (Lehi)','Psalm of Nephi','Jacob on Atonement','Nephi on Isaiah','Doctrine of Christ','Nephi\'s final testimony'],
+    key_verses:[{v:'"Adam fell that men might be; and men are, that they might have joy."',r:'2 Nephi 2:25'},{v:'"We talk of Christ, we rejoice in Christ, we preach of Christ... that our children may know to what source they may look."',r:'2 Nephi 25:26'}],
+    doctrines:['The Fall as divinely intended','Infinite Atonement (Jacob ch. 9)','Doctrine of Christ','Isaiah as prophetic map of Israel'],
+    themes:['From wilderness to Zion','The poet-prophet (Nephi\'s psalm)','Scripture interpretation']},
+    es:{name:'2 Nefi',date:'~570–545 a.C.',chapters:33,author:'Nefi hijo de Lehi',
+    summary:'El libro doctrinalmente más denso. Abre con las bendiciones finales de Lehi (el discurso sobre la Caída y el albedrío en el cap. 2). Dominado por citas de Isaías (caps. 7–8, 12–24) con el comentario de Nefi. Concluye con el testimonio de Nefi y la doctrina de la salvación (caps. 25–33).',
+    key_chapters:['2','4','9','25','31','33'],
+    key_notes:['La Caída y el Albedrío (Lehi)','El Salmo de Nefi','Jacob sobre la Expiación','Nefi sobre Isaías','La Doctrina de Cristo','El testimonio final de Nefi'],
+    key_verses:[{v:'"Adán cayó para que los hombres existiesen; y existen los hombres para que tengan gozo."',r:'2 Nefi 2:25'},{v:'"Y hablamos de Cristo, nos regocijamos en Cristo, predicamos de Cristo... para que nuestros hijos sepan a qué fuente acudir."',r:'2 Nefi 25:26'}],
+    doctrines:['La Caída como designio divino','Expiación infinita (Jacob cap. 9)','Doctrina de Cristo','Isaías como mapa profético de Israel'],
+    themes:['Del desierto a Sión','El profeta-poeta (Salmo de Nefi)','Interpretación de las escrituras']}
+  },
+  {
+    en:{name:'Jacob–Omni',date:'~544–130 BC',chapters:15,author:'Jacob, Enos, Jarom, Omni et al.',
+    summary:'Five small books. Jacob contributes sermons on chastity (ch. 2) and Zenos\'s olive tree allegory (ch. 5 — longest chapter in BOM). Enos records a profound wrestling prayer. The books pass the record forward through sparse generations.',
+    key_chapters:['Jacob 2','Jacob 5','Enos 1'],
+    key_notes:['Sermon on chastity & materialism','Zenos\'s Olive Tree Allegory','Enos\'s wrestling prayer'],
+    key_verses:[{v:'"And my soul hungered; and I kneeled down before my Maker, and I cried unto him in mighty prayer and supplication for mine own soul."',r:'Enos 1:4'}],
+    doctrines:['Infinite Atonement (Jacob 2, 4)','God\'s covenant with Israel as ongoing (Zenos)','Sexual ethics and covenant fidelity'],
+    themes:['The wrestling prayer','Israel\'s history as olive tree','Soul hunger and divine response']},
+    es:{name:'Jacob–Omni',date:'~544–130 a.C.',chapters:15,author:'Jacob, Enós, Jarom, Omni et al.',
+    summary:'Cinco libros pequeños. Jacob aporta sermones sobre la castidad (cap. 2) y la alegoría del olivo de Zenós (cap. 5 — el capítulo más largo del Libro de Mormón). Enós registra una profunda oración de lucha. Los libros pasan el registro a través de generaciones escasas.',
+    key_chapters:['Jacob 2','Jacob 5','Enós 1'],
+    key_notes:['Sermón sobre la castidad','Alegoría del olivo de Zenós','La oración de lucha de Enós'],
+    key_verses:[{v:'"Y mi alma sentía hambre; y me arrodillé ante mi Hacedor, y clamé a él en una poderosa oración y súplica por mi propia alma."',r:'Enós 1:4'}],
+    doctrines:['Expiación infinita (Jacob 2, 4)','El convenio de Dios con Israel como continuo (Zenós)','Ética sexual y fidelidad al convenio'],
+    themes:['La oración de lucha','La historia de Israel como olivo','El hambre del alma y la respuesta divina']}
+  },
+  {
+    en:{name:'Mosiah',date:'~200–91 BC',chapters:29,author:'Mormon (abridging)',
+    summary:'One of the most narratively rich books. King Benjamin\'s masterful farewell address (chs. 1–5). Abinadi\'s martyrdom and Alma\'s conversion (chs. 11–18). Alma founds the underground church. Ammon and brothers go on a mission to Lamanites. Transition from kings to judges.',
+    key_chapters:['2–5','11–17','18','27'],
+    key_notes:['King Benjamin\'s address','Abinadi\'s testimony','Alma at Waters of Mormon','Alma the Younger\'s conversion'],
+    key_verses:[{v:'"When ye are in the service of your fellow beings ye are only in the service of your God."',r:'Mosiah 2:17'},{v:'"The natural man is an enemy to God... unless he yields to the enticings of the Holy Spirit."',r:'Mosiah 3:19'}],
+    doctrines:['The natural man (Mosiah 3:19)','Covenant through baptism','Redemption only through Christ','Rule of law over kings'],
+    themes:['Servant leadership','Martyrdom and witness (Abinadi)','The underground church']},
+    es:{name:'Mosíah',date:'~200–91 a.C.',chapters:29,author:'Mormón (abreviando)',
+    summary:'Uno de los libros narrativamente más ricos. El magistral discurso de despedida del rey Benjamín (caps. 1–5). El martirio de Abinadi y la conversión de Alma (caps. 11–18). Alma funda la iglesia clandestina. Amón y hermanos van de misión a los lamanitas. Transición de reyes a jueces.',
+    key_chapters:['2–5','11–17','18','27'],
+    key_notes:['Discurso del rey Benjamín','El testimonio de Abinadi','Alma en las Aguas de Mormón','La conversión de Alma el Joven'],
+    key_verses:[{v:'"Cuando estáis al servicio de vuestros semejantes, estáis únicamente al servicio de vuestro Dios."',r:'Mosíah 2:17'},{v:'"El hombre natural es enemigo de Dios... a menos que se rinda a las incitaciones del Espíritu Santo."',r:'Mosíah 3:19'}],
+    doctrines:['El hombre natural (Mosíah 3:19)','Convenio mediante el bautismo','La redención solo por Cristo','El estado de derecho sobre los reyes'],
+    themes:['El liderazgo de servicio','Martirio y testimonio (Abinadi)','La iglesia clandestina']}
+  },
+  {
+    en:{name:'Alma',date:'~91–52 BC',chapters:63,author:'Mormon (abridging)',
+    summary:'The longest book — nearly a third of the BOM. Two halves: Alma the Younger\'s ministry (chs. 1–44), tracking crises with Nehor, Korihor, and the Zoramites — Alma 32 (faith as seed) and Alma 42 (justice and mercy) are essential. Captain Moroni\'s wars (chs. 45–63), with the stripling warriors.',
+    key_chapters:['5','11–12','32','36','40–42','56–57'],
+    key_notes:['Alma\'s soul sermon','Amulek on Atonement','Faith as a seed','Alma\'s conversion retold','Resurrection & justice/mercy','The stripling warriors'],
+    key_verses:[{v:'"Now we will compare the word unto a seed... if ye do not cast it out by your unbelief, it will begin to swell within your breasts."',r:'Alma 32:28'},{v:'"Mercy cannot rob justice... If so, God would cease to be God."',r:'Alma 42:25'}],
+    doctrines:['Faith as experimental process (Alma 32)','Resurrection of the dead (Alma 40)','Justice, mercy, and the Mediator (Alma 42)','The infinite Atonement (Amulek, Alma 34)'],
+    themes:['Anti-Christs and rational challenge','The warrior-saint','The stripling warriors and mothers\' testimony']},
+    es:{name:'Alma',date:'~91–52 a.C.',chapters:63,author:'Mormón (abreviando)',
+    summary:'El libro más largo — casi un tercio del Libro de Mormón. Dos mitades: el ministerio de Alma el Joven (caps. 1–44), con las crisis de Nehór, Córihor y los zoramitas — Alma 32 (la fe como semilla) y Alma 42 (justicia y misericordia) son esenciales. Las guerras del capitán Moroni (caps. 45–63), con los jóvenes guerreros.',
+    key_chapters:['5','11–12','32','36','40–42','56–57'],
+    key_notes:['El sermón del alma de Alma','Amulek sobre la Expiación','La fe como semilla','La conversión de Alma retada','Resurrección y justicia/misericordia','Los jóvenes guerreros'],
+    key_verses:[{v:'"Compararemos la palabra a una semilla... si no la echais por vuestra incredulidad, empezará a hincharse en vuestros pechos."',r:'Alma 32:28'},{v:'"La misericordia no puede robar a la justicia... De ser así, Dios dejaría de ser Dios."',r:'Alma 42:25'}],
+    doctrines:['La fe como proceso experimental (Alma 32)','La resurrección de los muertos (Alma 40)','Justicia, misericordia y el Mediador (Alma 42)','La Expiación infinita (Amulek, Alma 34)'],
+    themes:['Los anticristos y el reto racional','El guerrero-santo','Los jóvenes guerreros y el testimonio de las madres']}
+  },
+  {
+    en:{name:'Helaman',date:'~52–1 BC',chapters:16,author:'Mormon (abridging)',
+    summary:'A dark book. The Gadianton robbers infiltrate Nephite government and nearly destroy civilization. Samuel the Lamanite prophesies from the city wall with specific signs of Christ\'s birth and death. The book ends on the edge of collapse.',
+    key_chapters:['5','13–14','16'],
+    key_notes:['Nephi & Lehi in prison','Samuel\'s prophecy from the wall','Signs of Christ\'s coming'],
+    key_verses:[{v:'"Remember that it is upon the rock of our Redeemer, who is Christ, the Son of God, that ye must build your foundation."',r:'Helaman 5:12'}],
+    doctrines:['Secret combinations as civilizational threat','Specific signs of Christ\'s birth and death','The rock of Christ as foundation'],
+    themes:['Political corruption and prophetic resistance','The outsider-prophet (Samuel the Lamanite)','Gadianton pattern: resentment → conspiracy']},
+    es:{name:'Helamán',date:'~52–1 a.C.',chapters:16,author:'Mormón (abreviando)',
+    summary:'Un libro oscuro. Los ladrones de Gadiantón se infiltran en el gobierno nefita y casi destruyen la civilización. Samuel el Lamanita profetiza desde la muralla de la ciudad con señales específicas del nacimiento y la muerte de Cristo. El libro termina al borde del colapso.',
+    key_chapters:['5','13–14','16'],
+    key_notes:['Nefi y Lehi en prisión','Profecía de Samuel desde la muralla','Las señales de la venida de Cristo'],
+    key_verses:[{v:'"Recordad que es sobre la roca de nuestro Redentor, que es Cristo, el Hijo de Dios, que debéis edificar vuestro fundamento."',r:'Helamán 5:12'}],
+    doctrines:['Las combinaciones secretas como amenaza civilizatoria','Señales específicas del nacimiento y la muerte de Cristo','La roca de Cristo como fundamento'],
+    themes:['Corrupción política y resistencia profética','El profeta forastero (Samuel el Lamanita)','Patrón de Gadiantón: resentimiento → conspiración']}
+  },
+  {
+    en:{name:'3 Nephi',date:'~1 BC–35 AD',chapters:30,author:'Mormon (abridging)',
+    summary:'The climax of the BOM. The resurrected Christ appears to 2,500 Nephites (chs. 11–28). Includes a BOM version of the Sermon on the Mount, the sacrament instituted, and the "other sheep" revelation. The culmination of everything the earlier books prophesied.',
+    key_chapters:['11','12–14','17','27','28'],
+    key_notes:['Christ appears / wounds felt','Sermon on the Mount (BOM)','Christ blesses the children','The Gospel defined','Three Nephites given immortality'],
+    key_verses:[{v:'"Behold, I am Jesus Christ, whom the prophets testified shall come into the world."',r:'3 Nephi 11:10'},{v:'"Blessed are the pure in heart: for they shall see God."',r:'3 Nephi 12:8'}],
+    doctrines:['Doctrine of Christ (3 Ne 11:31–41)','The higher law vs. the Mosaic law','The sacrament instituted','Universality of the covenant'],
+    themes:['Catastrophe as prelude to theophany','The community of the covenant reconstituted','Prayer without ceasing']},
+    es:{name:'3 Nefi',date:'~1 a.C.–35 d.C.',chapters:30,author:'Mormón (abreviando)',
+    summary:'El clímax del Libro de Mormón. El Cristo resucitado se aparece a 2,500 nefitas (caps. 11–28). Incluye una versión del Sermón del Monte, la institución de la Santa Cena y la revelación de "las otras ovejas". La culminación de todo lo que los libros anteriores profetizaron.',
+    key_chapters:['11','12–14','17','27','28'],
+    key_notes:['Cristo aparece / se palpan las heridas','Sermón del Monte (LdM)','Cristo bendice a los niños','El Evangelio definido','Tres Nefitas reciben la inmortalidad'],
+    key_verses:[{v:'"He aquí, soy Jesucristo, de quien los profetas testificaron que había de venir al mundo."',r:'3 Nefi 11:10'},{v:'"Bienaventurados los de limpio corazón, porque ellos verán a Dios."',r:'3 Nefi 12:8'}],
+    doctrines:['Doctrina de Cristo (3 Nefi 11:31–41)','La ley superior vs. la ley de Moisés','La institución de la Santa Cena','Universalidad del convenio'],
+    themes:['La catástrofe como preludio a la teofanía','La comunidad del convenio reconstituida','La oración sin cesar']}
+  },
+  {
+    en:{name:'4 Nephi & Mormon',date:'35–385 AD',chapters:10,author:'Mormon',
+    summary:'4 Nephi covers 200 years in one chapter — the golden age. Mormon then covers the painful decline. He is simultaneously compiler and general, watching his people refuse to repent. His epistles to Moroni (Mormon 8–9) are among the most emotionally raw passages in scripture.',
+    key_chapters:['4 Nephi 1','Mormon 6','Mormon 8–9'],
+    key_notes:['200 years of Zion','Mormon\'s grief at Cumorah','Moroni\'s initial writings'],
+    key_verses:[{v:'"There was no contention in the land, because of the love of God which did dwell in the hearts of the people."',r:'4 Nephi 1:15'}],
+    doctrines:['Zion society as achievable in mortality','The pride cycle completing for the last time','The Spirit withdrawn when light is repeatedly rejected'],
+    themes:['Grief of the prophet-witness','What Zion looks like when achieved','Civilizational collapse']},
+    es:{name:'4 Nefi y Mormón',date:'35–385 d.C.',chapters:10,author:'Mormón',
+    summary:'4 Nefi cubre 200 años en un solo capítulo — la edad de oro. Mormón luego cubre la dolorosa decadencia. Es simultáneamente compilador y general, observando cómo su pueblo se niega a arrepentirse. Sus epístolas a Moroni (Mormón 8–9) están entre los pasajes emocionalmente más crudos de las escrituras.',
+    key_chapters:['4 Nefi 1','Mormón 6','Mormón 8–9'],
+    key_notes:['200 años de Sión','El lamento de Mormón en Cumorah','Los primeros escritos de Moroni'],
+    key_verses:[{v:'"No había ninguna contienda en la tierra, a causa del amor de Dios que moraba en el corazón del pueblo."',r:'4 Nefi 1:15'}],
+    doctrines:['Una sociedad sionista alcanzable en la mortalidad','El ciclo del orgullo completándose por última vez','El Espíritu se retira cuando la luz es continuamente rechazada'],
+    themes:['El lamento del profeta-testigo','Cómo es Sión cuando se logra','El colapso de una civilización']}
+  },
+  {
+    en:{name:'Ether',date:'Jaredite era (~2200–600 BC)',chapters:15,author:'Moroni (abridging)',
+    summary:'The Jaredite account. Chapter 3: the brother of Jared sees Christ\'s spirit body before the Incarnation — the apex of faith in the BOM. Chapter 12: Moroni\'s meditation on faith and weakness. The book ends with total civilizational destruction as a warning to future readers.',
+    key_chapters:['2–3','6','12','14–15'],
+    key_notes:['Barges / brother of Jared sees Christ','Ocean crossing','Moroni on faith','Final Jaredite destruction'],
+    key_verses:[{v:'"I will make weak things become strong unto them."',r:'Ether 12:27'},{v:'"Ye receive no witness until after the trial of your faith."',r:'Ether 12:6'}],
+    doctrines:['Faith precedes the miracle','The brother of Jared sees God\'s spirit body','Secret combinations as existential threat','Weakness as the doorway for grace'],
+    themes:['Hubris and civilizational collapse','The veil between God and man','Moroni\'s personal weakness and divine reassurance']},
+    es:{name:'Éter',date:'Era Jaredita (~2200–600 a.C.)',chapters:15,author:'Moroni (abreviando)',
+    summary:'El relato jaredita. Capítulo 3: el hermano de Jared ve el cuerpo espiritual de Cristo antes de la Encarnación — el apogeo de la fe en el Libro de Mormón. Capítulo 12: la meditación de Moroni sobre la fe y la debilidad. El libro termina con la destrucción civilizatoria total como advertencia.',
+    key_chapters:['2–3','6','12','14–15'],
+    key_notes:['Barcazas / el hermano de Jared ve a Cristo','El cruce oceánico','Moroni sobre la fe','La destrucción final de los jareditas'],
+    key_verses:[{v:'"Haré que las cosas débiles lleguen a ser fuertes para ellos."',r:'Éter 12:27'},{v:'"No recibiréis ningún testimonio hasta después de la prueba de vuestra fe."',r:'Éter 12:6'}],
+    doctrines:['La fe precede al milagro','El hermano de Jared ve el cuerpo espiritual de Dios','Las combinaciones secretas como amenaza existencial','La debilidad como puerta de la gracia'],
+    themes:['La soberbia y el colapso civilizatorio','El velo entre Dios y el hombre','La debilidad personal de Moroni y el consuelo divino']}
+  },
+  {
+    en:{name:'Moroni',date:'~401–421 AD',chapters:10,author:'Moroni son of Mormon',
+    summary:'Written in fragments while Moroni hides from Lamanite armies. Includes church ordinances (chs. 2–6), Mormon\'s letters on charity and infant baptism (chs. 7–8), and the closing farewell (chs. 9–10). Moroni 7 on charity mirrors 1 Corinthians 13. Moroni 10 is the epistemological challenge.',
+    key_chapters:['6','7','8','10'],
+    key_notes:['Church ordinances','Mormon on charity & discernment','Against infant baptism','Moroni\'s Promise'],
+    key_verses:[{v:'"Charity is the pure love of Christ, and it endureth forever."',r:'Moroni 7:47'},{v:'"Yea, come unto Christ, and be perfected in him, and deny yourselves of all ungodliness."',r:'Moroni 10:32'}],
+    doctrines:['Charity as the pure love of Christ','Moroni\'s Promise — experiential epistemology','Infant baptism rejected','Spiritual gifts as diverse expressions'],
+    themes:['Solitary faithfulness at civilization\'s end','The epistemological challenge as final witness','Charity as the horizon of all doctrine']},
+    es:{name:'Moroni',date:'~401–421 d.C.',chapters:10,author:'Moroni hijo de Mormón',
+    summary:'Escrito en fragmentos mientras Moroni se esconde de los ejércitos lamanitas. Incluye las ordenanzas de la iglesia (caps. 2–6), las cartas de Mormón sobre la caridad y el bautismo de infantes (caps. 7–8) y la despedida final (caps. 9–10). Moroni 7 sobre la caridad espeja 1 Corintios 13. Moroni 10 es el reto epistemológico.',
+    key_chapters:['6','7','8','10'],
+    key_notes:['Ordenanzas de la iglesia','Mormón sobre la caridad y el discernimiento','Contra el bautismo de infantes','La Promesa de Moroni'],
+    key_verses:[{v:'"La caridad es el amor puro de Cristo, y perdura para siempre."',r:'Moroni 7:47'},{v:'"Sí, venid a Cristo y perfeccionaos en él, y absteneos de toda impiedad."',r:'Moroni 10:32'}],
+    doctrines:['La caridad como el amor puro de Cristo','La Promesa de Moroni — epistemología experiencial','El bautismo de infantes rechazado','Los dones espirituales como expresiones diversas'],
+    themes:['La fidelidad solitaria al final de una civilización','El reto epistemológico como testimonio final','La caridad como horizonte de toda doctrina']}
+  }
+];
+
+let currentBook = 0;
+function selectBook(i) {
+  currentBook = i;
+  const b = books[i][lang];
+  document.getElementById('book-title').textContent = b.name;
+  document.getElementById('book-content').innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <span class="tag tag-history">${b.date}</span>
+      <span class="tag tag-doctrine">${b.chapters} ${t('chapters','capítulos')}</span>
+      <span class="tag tag-wisdom">${t('Author','Autor')}: ${b.author}</span>
+    </div>
+    <div class="two-col" style="margin-bottom:16px;">
+      <div class="card"><div class="card-title">◉ ${t('Overview','Panorama')}</div><p style="font-size:13px;line-height:1.75;color:var(--text2);">${b.summary}</p></div>
+      <div>
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-title">★ ${t('Key Chapters','Capítulos Clave')}</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            ${b.key_chapters.map((c,j)=>`<div style="display:flex;gap:8px;align-items:baseline;"><span class="tag tag-history" style="flex-shrink:0;">${b.name} ${c}</span><span style="font-size:12px;color:var(--text3);">${b.key_notes[j]||''}</span></div>`).join('')}
+          </div>
+        </div>
+        <div class="card"><div class="card-title">◈ ${t('Core Doctrines','Doctrinas')}</div><ul style="font-size:12px;color:var(--text2);line-height:1.8;padding-left:14px;">${b.doctrines.map(d=>`<li>${d}</li>`).join('')}</ul></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:12px;"><div class="card-title">✦ ${t('Key Verses','Versículos Clave')}</div>${b.key_verses.map(v=>`<div class="verse-block">${v.v}<span class="verse-ref">${v.r}</span></div>`).join('')}</div>
+    <div class="card"><div class="card-title">⊞ ${t('Major Themes','Temas Principales')}</div><div style="display:flex;flex-wrap:wrap;gap:7px;">${b.themes.map(th=>`<span class="tag tag-wisdom" style="font-size:12px;padding:4px 10px;">${th}</span>`).join('')}</div></div>
+  `;
+}
+
+// ── DOCTRINES ──
+const doctrines = {
+  en:[
+    {name:'The Atonement',summary:'Christ\'s infinite suffering, death, and resurrection redeem all who repent.',refs:['2 Ne 9','Alma 34','Alma 42','3 Ne 11'],detail:'The BOM develops the Atonement with philosophical precision. Jacob (2 Ne 9) calls it "infinite" — covering all creation and time. Amulek (Alma 34) argues it must be infinite because finite sacrifices cannot satisfy infinite justice. Alma 42 frames the tension: God cannot forgive unrepentant sin without becoming unjust. The Atonement is the mechanism by which both justice and mercy are fully honored — Christ absorbs the demands of justice so mercy can flow. 3 Nephi 11 presents the resurrected Christ showing his wounds as physical proof the Atonement happened in matter.'},
+    {name:'The Fall of Adam and Eve',summary:'The Fall was divinely intended — the necessary precondition for agency, opposition, joy, and redemption.',refs:['2 Ne 2','2 Ne 9','Mosiah 3'],detail:'"Adam fell that men might be; and men are, that they might have joy." (2 Ne 2:25). This is the BOM\'s most radical philosophical claim: the Fall is not the problem — it is the solution. Without it, no opposition, no agency, no joy, no redemption, no meaningful existence. Mosiah 3:19 adds the "natural man" doctrine: the Fall left humans naturally opposed to God, which must be overcome through the Spirit.'},
+    {name:'Agency and Moral Freedom',summary:'"Men are free to choose liberty and eternal life, or captivity and death." Agency is the central gift.',refs:['2 Ne 2','Alma 12','Helaman 14'],detail:'Agency is treated as God\'s highest gift and the non-negotiable foundation of all moral and spiritual life. 2 Nephi 2 frames it cosmologically: opposition in all things exists precisely so that agency is real. Alma 12 elaborates: those who harden their hearts receive less revelation; those who soften receive more. Agency is the engine of one\'s own spiritual development.'},
+    {name:'The Doctrine of Christ',summary:'Faith → repentance → baptism by water → baptism by fire (Holy Ghost). The foundational gateway.',refs:['2 Ne 31','3 Ne 11','3 Ne 27'],detail:'Nephi (2 Ne 31) and Christ himself (3 Ne 11, 27) articulate the sequence precisely. Faith in Christ first. Repentance follows. Baptism by water is the outward covenant. Baptism by fire (Holy Ghost) is the inward transformation — spiritual rebirth. 3 Nephi 11 establishes this immediately upon Christ\'s appearance, before any other teaching, as the foundational requirement.'},
+    {name:'Faith as Living Process',summary:'Faith is not intellectual assent but an experimental orientation — a seed that grows when nourished.',refs:['Alma 32','Ether 12','Moroni 10'],detail:'Alma 32 offers a pragmatist epistemology of faith: experiment on the word. Plant it like a seed. Nourish it and observe whether it enlarges your soul, enlightens your understanding, and increases your joy. If it does, the seed is good. Ether 12:6 adds the crucial temporal dimension: "ye receive no witness until after the trial of your faith." The witness comes after, not before, the action.'},
+    {name:'Justice, Mercy, and the Mediator',summary:'"Mercy cannot rob justice." The Atonement is the mechanism by which both are fully honored.',refs:['2 Ne 2','Alma 42','Mosiah 15'],detail:'Alma 42 frames the problem: God cannot save the unrepentant and remain just. But God also desires to save — mercy. The Atonement resolves this: Christ absorbs the demands of justice on behalf of those who repent. Mercy can then operate without violating law. 2 Nephi 2 frames the Mediator as standing between condemnation and blessing.'},
+    {name:'Resurrection',summary:'The body will be permanently restored to the spirit — universal, unconditional, a gift to all.',refs:['Alma 11','Alma 40','2 Ne 9'],detail:'Amulek (Alma 11): "spirit and body... reunited, never to be divided again." The resurrection is universal and unconditional — it does not depend on repentance. It is the gift of the Atonement to all who ever lived. Jacob (2 Ne 9) calls it deliverance from "the monster, death and hell." The body is a permanent component of the fullness of existence.'},
+    {name:'The Pride Cycle',summary:'Righteousness → prosperity → pride → wickedness → destruction → humility → righteousness.',refs:['Helaman 3–4','3 Ne 1–7','Mormon 1–6'],detail:'Mormon explicitly identifies this as the dominant pattern of Nephite history. The Gadianton robbers are its institutional expression at the political level. The tragedy of Mormon\'s record is watching his people refuse to break the cycle for the last time, knowing the end.'},
+    {name:'The Natural Man',summary:'"The natural man is an enemy to God." Fallen human nature must be consciously overcome through the Spirit.',refs:['Mosiah 3:19','Alma 22','2 Ne 9'],detail:'King Benjamin: the natural man is the enemy of God — not by specific acts but by disposition. The unreconstructed self, following appetites and passions, is structurally opposed to the divine order. The remedy is not self-improvement but transformation through the Atonement and the Spirit: becoming "as a child, submissive, meek, humble, patient, full of love."'},
+    {name:'Charity',summary:'"Charity is the pure love of Christ." The capstone virtue toward which all doctrine points.',refs:['Moroni 7','Ether 12:33–34','2 Ne 26:30'],detail:'Mormon\'s discourse in Moroni 7 parallels 1 Corinthians 13 but defines charity as "the pure love of Christ" — divine love flowing through God to humanity. It is a gift to pray for, not merely a virtue to cultivate. Without it, faith and hope are incomplete. Ether 12:33–34 adds that God himself is governed by charity — the Atonement was an act of pure love.'},
+    {name:'Secret Combinations',summary:'Clandestine networks of power and murder — the existential threat to any civilization.',refs:['Helaman 2','Ether 8','3 Ne 7'],detail:'Ether 8 contains Moroni\'s explicit warning: secret combinations will seek to overthrow the freedom of all nations. Moroni warns future readers they are already among them. The Gadiantons demonstrate the pattern: beginning as robbers, they infiltrate the judiciary, control government, and nearly collapse civilization. The same pattern destroyed the Jaredites before the Nephites.'},
+    {name:'Baptism and Ordinances',summary:'Covenant acts in matter — binding agreements with specific promises, not mere symbols.',refs:['3 Ne 11','Moroni 2–6','Mosiah 18'],detail:'The BOM treats ordinances as essential covenant acts. Alma\'s baptism at the Waters of Mormon (Mosiah 18) is paradigmatic: the covenant is explicit — mourn with those who mourn, comfort those who stand in need, stand as witnesses of God at all times. 3 Nephi 11 establishes baptism\'s precise mode and formula (immersion, exact words) immediately after Christ\'s appearance.'}
+  ],
+  es:[
+    {name:'La Expiación',summary:'El sufrimiento infinito, la muerte y la resurrección de Cristo redimen a todos los que se arrepienten.',refs:['2 Nefi 9','Alma 34','Alma 42','3 Nefi 11'],detail:'El Libro de Mormón desarrolla la Expiación con precisión filosófica. Jacob (2 Nefi 9) la llama "infinita" — abarca toda la creación y el tiempo. Amulek (Alma 34) argumenta que debe ser infinita porque los sacrificios finitos no pueden satisfacer la justicia infinita. Alma 42 enmarca la tensión: Dios no puede perdonar el pecado sin arrepentimiento sin convertirse en injusto. La Expiación es el mecanismo por el cual se honran plenamente la justicia y la misericordia.'},
+    {name:'La Caída de Adán y Eva',summary:'La Caída fue un designio divino — la condición necesaria para el albedrío, la oposición, el gozo y la redención.',refs:['2 Nefi 2','2 Nefi 9','Mosíah 3'],detail:'"Adán cayó para que los hombres existiesen; y existen los hombres para que tengan gozo." (2 Nefi 2:25). Esta es la afirmación filosófica más radical del Libro de Mormón: la Caída no es el problema — es la solución. Sin ella, no habría oposición, ni albedrío, ni gozo, ni redención, ni existencia significativa. Mosíah 3:19 añade la doctrina del "hombre natural": la Caída dejó a los humanos naturalmente opuestos a Dios.'},
+    {name:'El Albedrío y la Libertad Moral',summary:'"Los hombres son libres para escoger la libertad y la vida eterna, o la cautividad y la muerte."',refs:['2 Nefi 2','Alma 12','Helamán 14'],detail:'El albedrío es el don supremo de Dios y la base irrenunciable de toda vida moral y espiritual. 2 Nefi 2 lo encuadra cosmológicamente: la oposición en todas las cosas existe precisamente para que el albedrío sea real. Alma 12 elabora: quienes endurecen el corazón reciben menos revelación; quienes lo ablandan reciben más. El albedrío es el motor del desarrollo espiritual propio.'},
+    {name:'La Doctrina de Cristo',summary:'Fe → arrepentimiento → bautismo por agua → bautismo de fuego (Espíritu Santo). La puerta de entrada fundamental.',refs:['2 Nefi 31','3 Nefi 11','3 Nefi 27'],detail:'Nefi (2 Nefi 31) y el propio Cristo (3 Nefi 11, 27) articulan la secuencia con precisión. Primero la fe en Cristo. Luego el arrepentimiento. El bautismo por agua es el acto de convenio externo. El bautismo de fuego (Espíritu Santo) es la transformación interna — el renacimiento espiritual. 3 Nefi 11 establece esto inmediatamente al aparecer Cristo, antes de cualquier otra enseñanza.'},
+    {name:'La Fe como Proceso Vivo',summary:'La fe no es asentimiento intelectual sino una orientación experimental — una semilla que crece al ser nutrida.',refs:['Alma 32','Éter 12','Moroni 10'],detail:'Alma 32 ofrece una epistemología pragmatista de la fe: experimenta con la palabra. Plántala como una semilla. Nutrela y observa si agranda tu alma, ilumina tu entendimiento y aumenta tu gozo. Si lo hace, la semilla es buena. Éter 12:6 añade la dimensión temporal crucial: "no recibiréis ningún testimonio hasta después de la prueba de vuestra fe."'},
+    {name:'Justicia, Misericordia y el Mediador',summary:'"La misericordia no puede robar a la justicia." La Expiación es el mecanismo por el que ambas se honran plenamente.',refs:['2 Nefi 2','Alma 42','Mosíah 15'],detail:'Alma 42 enmarca el problema: Dios no puede salvar al pecador no arrepentido sin volverse injusto. Pero Dios también desea salvar — eso es la misericordia. La Expiación lo resuelve: Cristo absorbe las exigencias de la justicia en nombre de quienes se arrepienten. La misericordia puede entonces operar sin violar la ley.'},
+    {name:'La Resurrección',summary:'El cuerpo será reunido permanentemente con el espíritu — universal, incondicional, un don para todos.',refs:['Alma 11','Alma 40','2 Nefi 9'],detail:'Amulek (Alma 11): el espíritu y el cuerpo serán "reunidos, para nunca más ser separados." La resurrección es universal e incondicional — no depende del arrepentimiento. Es el don de la Expiación para todos los que vivieron. Jacob (2 Nefi 9) la llama liberación del "monstruo, la muerte y el infierno."'},
+    {name:'El Ciclo del Orgullo',summary:'Rectitud → prosperidad → orgullo → maldad → destrucción → humildad → rectitud.',refs:['Helamán 3–4','3 Nefi 1–7','Mormón 1–6'],detail:'Mormón identifica explícitamente este como el patrón dominante de la historia nefita. Los ladrones de Gadiantón son su expresión institucional en el nivel político. La tragedia del registro de Mormón es observar cómo su pueblo se niega a romper el ciclo por última vez, sabiendo el desenlace.'},
+    {name:'El Hombre Natural',summary:'"El hombre natural es enemigo de Dios." La naturaleza humana caída debe superarse conscientemente por el Espíritu.',refs:['Mosíah 3:19','Alma 22','2 Nefi 9'],detail:'El rey Benjamín: el hombre natural es enemigo de Dios — no por actos específicos sino por disposición. El yo no transformado, siguiendo apetitos y pasiones, se opone estructuralmente al orden divino. El remedio no es la automejora sino la transformación a través de la Expiación y el Espíritu: volverse "como un niño, sumiso, manso, humilde, paciente, lleno de amor."'},
+    {name:'La Caridad',summary:'"La caridad es el amor puro de Cristo." La virtud cumbre hacia la que apunta toda doctrina.',refs:['Moroni 7','Éter 12:33–34','2 Nefi 26:30'],detail:'El discurso de Mormón en Moroni 7 corre paralelo a 1 Corintios 13 pero define la caridad como "el amor puro de Cristo" — el amor divino que fluye de Dios a la humanidad. Es un don por el que hay que orar, no meramente una virtud que cultivar. Sin ella, la fe y la esperanza están incompletas.'},
+    {name:'Las Combinaciones Secretas',summary:'Redes clandestinas de poder y asesinato — la amenaza existencial para cualquier civilización.',refs:['Helamán 2','Éter 8','3 Nefi 7'],detail:'Éter 8 contiene la advertencia explícita de Moroni: las combinaciones secretas buscarán derrocar la libertad de todas las naciones. Moroni advierte a los lectores futuros que ya están entre ellos. Los gadiantones demuestran el patrón: comenzando como ladrones, se infiltran en el poder judicial, controlan el gobierno y casi colapsan la civilización.'},
+    {name:'El Bautismo y las Ordenanzas',summary:'Actos de convenio en la materia — compromisos vinculantes con promesas específicas, no meros símbolos.',refs:['3 Nefi 11','Moroni 2–6','Mosíah 18'],detail:'El Libro de Mormón trata las ordenanzas como actos de convenio esenciales. El bautismo de Alma en las Aguas de Mormón (Mosíah 18) es paradigmático: el convenio es explícito — condolerse con los que se conduelan, consolar a los que necesiten consuelo, ser testigos de Dios en todo momento. 3 Nefi 11 establece el modo y la fórmula precisos del bautismo inmediatamente después de la aparición de Cristo.'}
+  ]
+};
+
+function renderDoctrines() {
+  const data = doctrines[lang];
+  document.getElementById('doctrine-grid').innerHTML = data.map((d,i)=>`
+    <div class="doctrine-card" id="dc-${i}" onclick="selectDoctrine(${i})">
+      <h3>${d.name}</h3><p>${d.summary}</p>
+      <div class="doctrine-refs">${d.refs.map(r=>`<span class="d-ref">${r}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+function selectDoctrine(i) {
+  document.querySelectorAll('.doctrine-card').forEach((c,j)=>c.classList.toggle('selected',j===i));
+  const d = doctrines[lang][i];
+  const det = document.getElementById('doctrine-detail');
+  det.innerHTML = `<div class="card-title">${d.name}</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">${d.refs.map(r=>`<span class="d-ref">${r}</span>`).join('')}</div><p style="font-size:14px;line-height:1.8;color:var(--text);">${d.detail}</p>`;
+  det.classList.add('visible');
+  det.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── CHARACTERS ──
+const chars = {
+  en:[
+    {name:'Lehi',role:'Prophet, patriarch',color:'#2a4a7a',summary:'The founding patriarch. Jerusalem prophet (~600 BC) who receives visions of the Tree of Life and the coming Messiah, and is commanded to flee before the Babylonian conquest. His farewell blessings (1 Ne 1 – 2 Ne 4) contain the philosophical core of the BOM. His discourse to Jacob in 2 Nephi 2 is the most philosophically rigorous passage in the book.'},
+    {name:'Nephi',role:'Prophet, writer, founder',color:'#5a80b8',summary:'The dominant voice of the first third of the BOM. Youngest-son archetype: scorned by older brothers, vindicated by God. Kills Laban under divine instruction — the BOM\'s most morally difficult moment. His "psalm" (2 Ne 4) is the most personal, emotionally raw writing in the book. Also the primary prophetic visionary, expanding on Lehi\'s tree-of-life vision (1 Ne 11–14).'},
+    {name:'Jacob',role:'Prophet, theologian',color:'#3a6098',summary:'Nephi\'s younger brother, born in the wilderness. The BOM\'s most theologically rigorous writer. His sermon on chastity (Jacob 2) is shockingly direct. His exposition of the Atonement (2 Ne 9) is among the most sustained theological arguments in the book. Also records the great Zenos allegory of the olive tree (Jacob 5).'},
+    {name:'Enos',role:'Prophet, intercessor',color:'#2a7a5a',summary:'Jacob\'s son. Famous for a single experience: a day-long wrestling prayer in the forest in which he receives forgiveness of sins, then prays for the Lamanites, then for future generations. The exchange is brief and devastating: "thy sins are forgiven thee." He asks: "How is it done?" The Lord: "Because of thy faith in Christ."'},
+    {name:'King Benjamin',role:'King, prophet, servant-leader',color:'#8b5c2a',summary:'The great Nephite king-prophet of the transition period (~124 BC). His farewell address (Mosiah 2–5) is one of the most admired texts in the BOM: the king who serves rather than exploits, the natural man as enemy of God, the covenant community reconstituted. His people experience a collective "mighty change of heart."'},
+    {name:'Abinadi',role:'Martyr-prophet',color:'#7a2020',summary:'The prophet who appeared in disguise before wicked King Noah\'s court (~148 BC) and refused to recant his testimony under threat of death. His exposition of Isaiah 53 and Christ as both Father and Son (Mosiah 15) is doctrinally crucial. He converts one man — Alma — before being burned alive.'},
+    {name:'Alma the Elder',role:'Priest, convert, founder',color:'#6a4a20',summary:'Originally a priest of wicked King Noah who was converted by Abinadi\'s testimony. He secretly baptizes believers at the Waters of Mormon, founds the underground church, is discovered, and flees into the wilderness. His covenant at the Waters of Mormon is the paradigmatic baptismal covenant in the BOM.'},
+    {name:'Alma the Younger',role:'Prophet, chief judge, missionary',color:'#4a3010',summary:'Begins as a rebellious young man fighting against the church — until an angel appears and he falls unconscious for three days in a conversion as dramatic as Paul\'s Damascus road experience. Becomes chief judge, then resigns to be a full-time missionary. His faith-as-seed sermon (Alma 32) and justice-mercy argument (Alma 42) are essential BOM theology.'},
+    {name:'Captain Moroni',role:'Military commander, warrior-saint',color:'#2a5a3a',summary:'Nephite general (~74–56 BC). Mormon writes: "If all men had been, and were, and ever would be, like unto Moroni, behold, the very powers of hell would have been shaken forever." He raises the Title of Liberty calling his people to fight for God, religion, freedom, and families. Both inspiring and capable of extreme severity.'},
+    {name:'Samuel the Lamanite',role:'Outsider prophet',color:'#7a5a20',summary:'A Lamanite prophet who stands on the wall of Zarahemla (~6 BC) and prophesies specific signs of Christ\'s birth and death to a hostile Nephite crowd. He cannot be hit by arrows or stones. His outsider status is the BOM\'s sharpest reversal: the expected "wicked" Lamanite is the prophet; the expected "righteous" Nephites reject him.'},
+    {name:'Mormon',role:'Compiler, general, prophet',color:'#5a4a30',summary:'The BOM\'s primary compiler and the one whose name it bears. A military genius pressed into command at age 15. He abridges 1,000 years of records, inserting his own commentary throughout. His epistles to Moroni (Moroni 7–9) reveal a man of extraordinary faith writing at civilization\'s end. His grief in Mormon 6 is palpable.'},
+    {name:'Moroni',role:'Final prophet, editor',color:'#8a7a60',summary:'Mormon\'s son, the last Nephite. Survives the battle of Cumorah, wanders alone for decades, adds his own writings (Moroni 1–10), abridges the Jaredite record (Ether), and buries the plates (~421 AD). His personal dialogue with Christ in Ether 12 and his final testimony in Moroni 10 are among the most spiritually moving passages in the BOM.'},
+    {name:'Brother of Jared',role:'Prophet, pinnacle of faith',color:'#4a6a8a',summary:'The Jaredite leader whose faith is treated by Moroni as the apex of human faith. He asks God to touch sixteen stones to make them glow. Because of his extraordinary faith, God cannot hide himself — the veil is removed and he sees Christ\'s spirit body before the Incarnation (Ether 3). Moroni treats this as the ultimate demonstration of what faith can produce.'},
+    {name:'Ammon',role:'Missionary, servant-leader',color:'#3a7a5a',summary:'Son of Mosiah II. Chooses to serve a Lamanite king as a servant rather than seek power. Defends the king\'s flocks by cutting off the arms of attackers — opening the door for the mass conversion of thousands. His converts, the Anti-Nephi-Lehies, bury their weapons and choose martyrdom over violence.'},
+    {name:'Helaman (son of Alma)',role:'Prophet, military leader',color:'#3a5a80',summary:'Commands the stripling warriors — 2,000 young Lamanite men whose mothers taught them that if they did not doubt, God would deliver them. All 2,000 survive every battle, though all are wounded. None die. His letter to Captain Moroni reporting this (Alma 56–58) is one of the most emotionally moving passages in the BOM.'}
+  ],
+  es:[
+    {name:'Lehi',role:'Profeta, patriarca',color:'#2a4a7a',summary:'El patriarca fundador. Profeta de Jerusalén (~600 a.C.) que recibe visiones del árbol de la vida y del Mesías venidero, y es mandado a huir antes de la conquista babilónica. Sus bendiciones de despedida (1 Nefi 1 – 2 Nefi 4) contienen el núcleo filosófico del Libro de Mormón. Su discurso a Jacob en 2 Nefi 2 es el pasaje filosóficamente más riguroso del libro.'},
+    {name:'Nefi',role:'Profeta, escritor, fundador',color:'#5a80b8',summary:'La voz dominante del primer tercio del Libro de Mormón. Arquetipo del hijo menor: despreciado por sus hermanos mayores, vindicado por Dios. Mata a Labán bajo instrucción divina — el momento moralmente más difícil del libro. Su "salmo" (2 Nefi 4) es el escrito más personal y emocionalmente crudo del libro.'},
+    {name:'Jacob',role:'Profeta, teólogo',color:'#3a6098',summary:'Hermano menor de Nefi, nacido en el desierto. El escritor teológicamente más riguroso del Libro de Mormón. Su sermón sobre la castidad (Jacob 2) es de una franqueza sorprendente. Su exposición de la Expiación (2 Nefi 9) es uno de los argumentos teológicos más sostenidos del libro. También registra la gran alegoría del olivo de Zenós (Jacob 5).'},
+    {name:'Enós',role:'Profeta, intercesor',color:'#2a7a5a',summary:'Hijo de Jacob. Famoso por una sola experiencia: una oración de lucha que dura todo el día en el bosque, en la que recibe el perdón de sus pecados, luego ora por los lamanitas y después por las generaciones futuras. El intercambio es breve y demoledor: "tus pecados te son perdonados." Enós pregunta: "¿Cómo?" El Señor: "Por tu fe en Cristo."'},
+    {name:'Rey Benjamín',role:'Rey, profeta, líder-siervo',color:'#8b5c2a',summary:'El gran rey-profeta nefita del período de transición (~124 a.C.). Su discurso de despedida (Mosíah 2–5) es uno de los textos más admirados del libro: el rey que sirve en vez de explotar, el hombre natural como enemigo de Dios, la comunidad del convenio reconstituida. Su pueblo experimenta un colectivo "gran cambio de corazón."'},
+    {name:'Abinadi',role:'Profeta mártir',color:'#7a2020',summary:'El profeta que se presentó disfrazado ante la corte del malvado rey Noé (~148 a.C.) y se negó a retractarse de su testimonio bajo pena de muerte. Su exposición de Isaías 53 y de Cristo como Padre e Hijo (Mosíah 15) es doctrinalmente crucial. Convierte a un solo hombre — Alma — antes de ser quemado vivo.'},
+    {name:'Alma el Mayor',role:'Sacerdote, converso, fundador',color:'#6a4a20',summary:'Originalmente sacerdote del malvado rey Noé que fue convertido por el testimonio de Abinadi. Bautiza secretamente a los creyentes en las Aguas de Mormón, funda la iglesia clandestina, es descubierto y huye al desierto. Su convenio en las Aguas de Mormón es el paradigma del convenio bautismal en el Libro de Mormón.'},
+    {name:'Alma el Joven',role:'Profeta, juez, misionero',color:'#4a3010',summary:'Comienza como un joven rebelde que lucha contra la iglesia — hasta que un ángel aparece y cae inconsciente durante tres días en una conversión tan dramática como la experiencia de Pablo en el camino a Damasco. Llega a ser juez principal, luego renuncia para ser misionero de tiempo completo. Sus sermones sobre la fe como semilla (Alma 32) y la justicia y misericordia (Alma 42) son teología esencial del Libro de Mormón.'},
+    {name:'Capitán Moroni',role:'Comandante militar, guerrero-santo',color:'#2a5a3a',summary:'General nefita (~74–56 a.C.). Mormón escribe: "Si todos los hombres hubiesen sido, y fuesen, y fuesen a ser siempre, como Moroni, he aquí, los propios poderes del infierno hubiesen sido sacudidos para siempre." Enarboló el Título de Libertad convocando a su pueblo a luchar por Dios, la religión, la libertad y las familias.'},
+    {name:'Samuel el Lamanita',role:'Profeta forastero',color:'#7a5a20',summary:'Un profeta lamanita que se para sobre la muralla de Zarahemla (~6 a.C.) y profetiza señales específicas del nacimiento y la muerte de Cristo a una multitud nefita hostil. Las flechas y piedras no pueden alcanzarle. Su condición de forastero es la inversión más marcada del Libro de Mormón: el "malvado" lamanita es el profeta; los "justos" nefitas lo rechazan.'},
+    {name:'Mormón',role:'Compilador, general, profeta',color:'#5a4a30',summary:'El principal compilador del Libro de Mormón y aquel cuyo nombre lleva. Un genio militar llamado al mando a los 15 años. Abrevia 1,000 años de registros, insertando su propio comentario a lo largo del texto. Sus epístolas a Moroni (Moroni 7–9) revelan a un hombre de fe extraordinaria escribiendo al final de una civilización.'},
+    {name:'Moroni',role:'Profeta final, editor',color:'#8a7a60',summary:'Hijo de Mormón, el último nefita. Sobrevive la batalla de Cumorah, vaga solo durante décadas, añade sus propios escritos (Moroni 1–10), abrevia el registro jaredita (Éter) y entierra las planchas (~421 d.C.). Su diálogo personal con Cristo en Éter 12 y su testimonio final en Moroni 10 se encuentran entre los pasajes espiritualmente más conmovedores del libro.'},
+    {name:'El Hermano de Jared',role:'Profeta, cúspide de la fe',color:'#4a6a8a',summary:'El líder jaredita cuya fe es tratada por Moroni como el apogeo de la fe humana. Pide a Dios que toque dieciséis piedras para que brillen. Por su fe extraordinaria, Dios no puede ocultarse — el velo es levantado y ve el cuerpo espiritual de Cristo antes de la Encarnación (Éter 3).'},
+    {name:'Amón',role:'Misionero, líder-siervo',color:'#3a7a5a',summary:'Hijo de Mosíah II. Elige servir a un rey lamanita como siervo en vez de buscar el poder. Defiende los rebaños del rey cortando los brazos de los atacantes — abriendo la puerta a la conversión masiva de miles. Sus conversos, los anti-nefi-lehitas, entierran sus armas y eligen el martirio antes que la violencia.'},
+    {name:'Helamán (hijo de Alma)',role:'Profeta, líder militar',color:'#3a5a80',summary:'Comandó a los jóvenes guerreros — 2,000 jóvenes lamanitas cuyas madres les enseñaron que si no dudaban, Dios los libraría. Los 2,000 sobreviven cada batalla aunque todos son heridos. Ninguno muere. Su carta al capitán Moroni informando de esto (Alma 56–58) es uno de los pasajes emocionalmente más conmovedores del libro.'}
+  ]
+};
+
+function renderChars() {
+  const data = chars[lang];
+  document.getElementById('char-grid').innerHTML = data.map((c,i)=>`
+    <div class="char-card" id="cc-${i}" onclick="selectChar(${i})">
+      <div class="char-initial" style="background:${c.color}22;border:1px solid ${c.color}44;color:${c.color};">${c.name[0]}</div>
+      <h3>${c.name}</h3><div class="ch-role">${c.role}</div>
+    </div>`).join('');
+}
+
+function selectChar(i) {
+  document.querySelectorAll('.char-card').forEach((c,j)=>c.classList.toggle('selected',j===i));
+  const c = chars[lang][i];
+  const det = document.getElementById('char-detail');
+  det.innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+      <div class="char-initial" style="background:${c.color}22;border:1px solid ${c.color}44;color:${c.color};width:52px;height:52px;font-size:18px;">${c.name[0]}</div>
+      <div><div style="font-family:'Cinzel',serif;font-size:17px;color:var(--copper);">${c.name}</div><div style="font-size:12px;color:var(--text3);font-style:italic;margin-top:2px;">${c.role}</div></div>
+    </div>
+    <p style="font-size:14px;line-height:1.8;color:var(--text);">${c.summary}</p>`;
+  det.classList.add('visible');
+  det.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── THEMES ──
+const themes = {
+  en:[
+    {name:'The Pride Cycle',summary:'Righteousness → prosperity → pride → destruction → repentance. The dominant historical pattern.',detail:'Mormon explicitly identifies this as the pattern of Nephite history and the reason for their destruction. It operates at every level: individual (Alma the Younger), family (Lehi\'s family), church (multiple apostasies), and civilization (Nephite collapse). The Gadianton robbers are its institutional expression — formalizing exploitation through secret combination. Mormon writes knowing the cycle is completing for the last time and that his people will not repent. His record is addressed to a future people he hopes will learn what his own generation would not.'},
+    {name:'Testimony and Witness',summary:'The BOM is structured as nested testimonies — each prophet witnessing to what they know is true.',detail:'The BOM is not primarily a historical narrative but a witness document. Every major prophet introduces himself as a witness. The structure of testimony is also didactic: Mormon inserts "and thus we see" commentary to ensure the reader understands the lesson. Moroni\'s Promise (Moroni 10) is the culmination: the entire record is presented as evidence for an epistemological test — ask God if it is true and you will know.'},
+    {name:'God\'s Covenant with Israel',summary:'The gathering, scattering, and eventual restoration of the house of Israel — the BOM\'s macrohistorical framework.',detail:'The BOM reads itself and its people within the framework of Israel\'s covenant. Lehi\'s family are Israelites. The Lamanites are promised eventual restoration. Isaiah\'s prophecies (quoted extensively in 1–2 Nephi) are read as maps of this process. 3 Nephi 15 frames the Nephite encounter with Christ as part of this universal covenant — Christ is not only the God of the Jews but of all Israel, wherever they are.'},
+    {name:'Sermon Structure and Preaching',summary:'The BOM preserves more sustained, serious theological preaching than almost any other ancient text.',detail:'The BOM is extraordinary for its density of preserved sermons: King Benjamin\'s farewell, Abinadi\'s trial testimony, Alma on faith, Amulek on the Atonement, Christ\'s Sermon on the Mount version, Mormon on charity, Moroni on faith. These are not summaries but extended discourses with internal logic. Mormon as compiler appears to select specifically for preaching that makes the doctrine plain.'},
+    {name:'Family as Theological Drama',summary:'Nearly every major conflict begins as a family conflict: Laman vs. Nephi, the stripling warriors and their mothers.',detail:'The BOM uses family as the microcosm of all theological and civilizational dynamics. The Laman–Nephi split becomes the organizing principle of 600 years of war and culture. The stripling warriors who trust their mothers\' testimony re-perform the pattern of faithful obedience. The family is never merely private in the BOM — it is the training ground and test case for all larger loyalties.'},
+    {name:'The Quiet Voice / Direct Experience',summary:'Authentic divine communication tends to be small, inner, and penetrating rather than spectacular.',detail:'Across the BOM, the most significant divine communications are intimate rather than spectacular. Enos\'s prayer is private. Alma\'s conversion happens in unconscious darkness. The voice in 3 Nephi 11 is initially so quiet the multitude cannot understand it. The pattern suggests the BOM\'s theology of revelation: the divine communicates in modes that require attentiveness, not passivity. Spectacular interventions happen but tend to accompany hardened hearts that have not responded to quieter approaches.'},
+    {name:'Warfare and Ethics of Violence',summary:'The BOM devotes more words to war than almost any topic — treating it with moral complexity, not glorification.',detail:'The Alma–Helaman war chapters are long and detailed. Captain Moroni fights only in defense, repeatedly offering enemies the chance to covenant peace. The Anti-Nephi-Lehies bury their weapons and choose martyrdom — 1,000 killed without resistance. Their sons then fight in their parents\' place. The BOM distinguishes: offensive war (condemned), defensive war (permitted), principled non-violence (honored but individually chosen, not universally mandated).'},
+    {name:'The Record Addressing Future Readers',summary:'Multiple prophets explicitly address their words not to contemporaries but to future generations — including us.',detail:'This self-consciousness about future audience is unusual in ancient literature. Mormon abridges "for a wise purpose" not fully known to him. Moroni knows the record will emerge in a future time. He addresses "ye Gentiles" directly. Moroni 10 invites the reader into the text\'s own verification process — making the reader not a passive audience but an active participant in its truth claim.'}
+  ],
+  es:[
+    {name:'El Ciclo del Orgullo',summary:'Rectitud → prosperidad → orgullo → destrucción → arrepentimiento. El patrón histórico dominante.',detail:'Mormón identifica explícitamente este como el patrón de la historia nefita y la razón de su destrucción. Opera en todos los niveles: individual (Alma el Joven), familiar (la familia de Lehi), eclesial (múltiples apostasías) y civilizatorio (la caída de los nefitas). Los ladrones de Gadiantón son su expresión institucional. Mormón escribe sabiendo que el ciclo se completa por última vez y que su pueblo no se arrepentirá. Su registro está dirigido a un pueblo futuro que espera aprenda lo que su propia generación no quiso aprender.'},
+    {name:'Testimonio y Testigo',summary:'El Libro de Mormón está estructurado como testimonios anidados — cada profeta testificando de lo que sabe que es verdad.',detail:'El Libro de Mormón no es principalmente una narrativa histórica sino un documento de testimonio. Todo profeta importante se presenta como testigo. La estructura del testimonio es también didáctica: Mormón inserta comentarios del tipo "y así vemos" para asegurarse de que el lector entienda la lección. La Promesa de Moroni (Moroni 10) es la culminación: todo el registro se presenta como evidencia para una prueba epistemológica.'},
+    {name:'El Convenio de Dios con Israel',summary:'La dispersión, el esparcimiento y la eventual restauración de la casa de Israel — el marco macrhistórico del libro.',detail:'El Libro de Mormón se lee a sí mismo y a su pueblo dentro del marco del convenio de Israel. La familia de Lehi son israelitas. A los lamanitas se les promete eventual restauración. Las profecías de Isaías (ampliamente citadas en 1–2 Nefi) se leen como mapas de este proceso. 3 Nefi 15 encuadra el encuentro nefita con Cristo como parte de este convenio universal.'},
+    {name:'Estructura del Sermón y la Predicación',summary:'El Libro de Mormón preserva más predicación teológica sostenida y seria que casi cualquier otro texto antiguo.',detail:'El libro es extraordinario por su densidad de sermones preservados: la despedida del rey Benjamín, el testimonio en el juicio de Abinadi, Alma sobre la fe, Amulek sobre la Expiación, la versión del Sermón del Monte de Cristo, Mormón sobre la caridad, Moroni sobre la fe. No son resúmenes sino discursos extensos con lógica interna.'},
+    {name:'La Familia como Drama Teológico',summary:'Casi todo conflicto mayor comienza como conflicto familiar: Lamán vs. Nefi, los jóvenes guerreros y sus madres.',detail:'El Libro de Mormón usa la familia como microcosmos de todas las dinámicas teológicas y civilizatorias. La división Lamán–Nefi se convierte en el principio organizador de 600 años de guerra y cultura. Los jóvenes guerreros que confían en el testimonio de sus madres re-ejecutan el patrón de obediencia fiel. La familia nunca es meramente privada en el libro — es el campo de entrenamiento y prueba para todas las lealtades mayores.'},
+    {name:'La Voz Tranquila / Experiencia Directa',summary:'La comunicación divina auténtica tiende a ser pequeña, interior y penetrante, no espectacular.',detail:'A lo largo del Libro de Mormón, las comunicaciones divinas más significativas son íntimas más que espectaculares. La oración de Enós es privada. La conversión de Alma ocurre en la oscuridad del inconsciente. La voz de 3 Nefi 11 es tan tranquila que la multitud inicialmente no puede entenderla. El patrón sugiere la teología de la revelación del libro: lo divino se comunica en modos que requieren atención, no pasividad.'},
+    {name:'La Guerra y la Ética de la Violencia',summary:'El libro dedica más palabras a la guerra que a casi cualquier otro tema — tratándola con complejidad moral, no glorificación.',detail:'Los capítulos bélicos de Alma–Helamán son largos y detallados. El capitán Moroni lucha solo en defensa, ofreciendo repetidamente a los enemigos la oportunidad de comprometerse en paz. Los anti-nefi-lehitas entierran sus armas y eligen el martirio — 1,000 muertos sin resistencia. Sus hijos entonces luchan en su lugar. El libro distingue: la guerra ofensiva (condenada), la guerra defensiva (permitida), la no-violencia por principio (honorada pero elegida individualmente).'},
+    {name:'El Registro que se Dirige a Lectores Futuros',summary:'Múltiples profetas dirigen explícitamente sus palabras no a sus contemporáneos sino a generaciones futuras — incluidos nosotros.',detail:'Esta conciencia de la audiencia futura es inusual en la literatura antigua. Mormón abrevia "para un propósito sabio" que no le es completamente conocido. Moroni sabe que el registro emergirá en un tiempo futuro. Dirige sus palabras directamente a "los gentiles." Moroni 10 invita al lector al proceso de verificación del propio texto — convirtiendo al lector no en una audiencia pasiva sino en un participante activo de su verdad.'}
+  ]
+};
+
+function renderThemes() {
+  const data = themes[lang];
+  document.getElementById('theme-grid').innerHTML = data.map((t,i)=>`
+    <div class="theme-card" id="tc-${i}" onclick="selectTheme(${i})">
+      <h3>${t.name}</h3><p>${t.summary}</p>
+    </div>`).join('');
+}
+
+function selectTheme(i) {
+  document.querySelectorAll('.theme-card').forEach((c,j)=>c.classList.toggle('selected',j===i));
+  const t = themes[lang][i];
+  const det = document.getElementById('theme-detail');
+  det.innerHTML = `<div class="card-title">${t.name}</div><p style="font-size:14px;line-height:1.8;color:var(--text);">${t.detail}</p>`;
+  det.classList.add('visible');
+  det.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── PROPHECIES ──
+const prophecies = {
+  en:[
+    {name:'The Coming Messiah Named',ref:'2 Nephi 25:19 (~570 BC)',text:'Nephi names the Messiah "Jesus Christ" six centuries before the birth — with specific details of mission, baptism, miracles, crucifixion, and resurrection.',fulfillment:'3 Nephi 11 — Christ appears and introduces himself by name.',detail:'One of the most specific messianic prophecies: a name, six centuries early. Nephi also describes baptism by John and the resurrection in prophetic detail.'},
+    {name:'Night Without Darkness at Christ\'s Birth',ref:'Helaman 14:3–4 (~6 BC)',text:'Samuel the Lamanite: "There shall be no darkness in all that night in which he is born." A specific astronomical sign that will either happen or the believers will be killed.',fulfillment:'3 Nephi 1:15–21 — fulfilled exactly. Those who doubted planned to execute the believers but the sign came.',detail:'The dramatic tension of 3 Nephi 1 is built deliberately: the believers set a deadline; if the sign does not come, they will be killed. The night of light arrives precisely.'},
+    {name:'Three Days of Darkness at Christ\'s Death',ref:'Helaman 14:20–27 (~6 BC)',text:'Three days of total darkness following Christ\'s death, with earthquakes, great storms, and cities sinking.',fulfillment:'3 Nephi 8 — exact fulfillment; darkness so thick it "could be felt."',detail:'The physical cataclysms at Christ\'s death are presented as direct fulfillment of Samuel\'s decades-earlier prophecy. The specificity of the prediction is striking.'},
+    {name:'The Tree of Life Vision',ref:'1 Nephi 8 (~598 BC)',text:'Lehi dreams of a tree with white fruit, an iron rod leading to it, and a great and spacious building of mockers.',fulfillment:'Nephi\'s expanded vision (1 Ne 11–14): tree = love of God / Atonement; building falls at the end.',detail:'Functions as a prophetic map of the entire BOM: the rod (word of God), mists of darkness (temptation), the great building (worldly pride), and the fruit (the Atonement) are the book\'s organizing symbols.'},
+    {name:'The "Other Sheep" of John 10:16',ref:'John 10:16 fulfilled in 3 Nephi 15',text:'Christ\'s Jerusalem statement "other sheep I have which are not of this fold" — his disciples could not understand it.',fulfillment:'3 Nephi 15:21 — Christ tells the Nephites they are those other sheep.',detail:'The BOM frames itself as the fulfillment of a New Testament prophecy — giving it a self-authenticating claim: if you believe John 10:16, the BOM is the evidence of who those "other sheep" were.'},
+    {name:'The Scattering and Gathering of Israel',ref:'2 Nephi 6–10; 2 Ne 25–30 (~570 BC)',text:'Nephi, quoting Isaiah extensively, prophecies Israel\'s scattering among nations, the Gentiles receiving the gospel, and the final restoration.',fulfillment:'Ongoing — the BOM itself is understood as an instrument of the gathering.',detail:'Nephi\'s reading of Isaiah frames the entire BOM project within the covenant arc: Israel scattered (accomplished); Gentiles receive the gospel (BOM publication); Israel gathered back (future).'},
+    {name:'The Sealed Book (Isaiah 29)',ref:'2 Nephi 27 (~570 BC)',text:'Nephi quotes Isaiah 29 as a prophecy of a sealed book delivered to an unlearned man, with scholars unable to read it.',fulfillment:'Understood as the BOM\'s publication in 1830.',detail:'The BOM\'s strongest internal self-authenticating prophecy. Isaiah 29\'s "learned man" (who says he cannot read a sealed book) and "unlearned man" (who reads it by divine gift) are interpreted as specific historical figures.'},
+    {name:'Signs of Christ\'s Death — Darkness and Earthquakes',ref:'1 Nephi 19:10–12 (~590 BC)',text:'Nephi prophesies that at Christ\'s death, there will be thunderings and lightnings, earthquakes, and three days of darkness among the Nephites.',fulfillment:'3 Nephi 8 — exact fulfillment, six centuries later.',detail:'Nephi, quoting the prophet Zenos, gives a list of physical signs that will accompany Christ\'s death. The fulfillment in 3 Nephi 8 verifies them one by one.'}
+  ],
+  es:[
+    {name:'El Mesías Venidero — Nombrado',ref:'2 Nefi 25:19 (~570 a.C.)',text:'Nefi nombra al Mesías "Jesucristo" seis siglos antes del nacimiento — con detalles específicos de su misión, bautismo, milagros, crucifixión y resurrección.',fulfillment:'3 Nefi 11 — Cristo aparece y se presenta por nombre.',detail:'Una de las profecías mesiánicas más específicas: un nombre, seis siglos antes. Nefi también describe el bautismo por Juan y la resurrección con detalle profético.'},
+    {name:'La Noche Sin Oscuridad en el Nacimiento de Cristo',ref:'Helamán 14:3–4 (~6 a.C.)',text:'Samuel el Lamanita: "No habrá oscuridad durante la noche de su nacimiento." Una señal astronómica específica que o ocurrirá o los creyentes serán ejecutados.',fulfillment:'3 Nefi 1:15–21 — cumplida exactamente. Los incrédulos planeaban ejecutar a los creyentes pero la señal llegó.',detail:'La tensión dramática de 3 Nefi 1 se construye deliberadamente: los creyentes establecen una fecha límite; si la señal no llega, serán muertos. La noche de luz llega precisamente.'},
+    {name:'Los Tres Días de Oscuridad en la Muerte de Cristo',ref:'Helamán 14:20–27 (~6 a.C.)',text:'Tres días de oscuridad total tras la muerte de Cristo, con terremotos, grandes tempestades y ciudades hundiéndose.',fulfillment:'3 Nefi 8 — cumplimiento exacto; oscuridad tan densa que "podía sentirse."',detail:'Los cataclismos físicos en la muerte de Cristo se presentan como cumplimiento directo de la profecía de Samuel décadas antes. La especificidad de la predicción es notable.'},
+    {name:'La Visión del Árbol de la Vida',ref:'1 Nefi 8 (~598 a.C.)',text:'Lehi sueña con un árbol de fruto blanco, una barra de hierro que lleva a él, y un gran edificio espacioso lleno de burladores.',fulfillment:'La visión ampliada de Nefi (1 Nefi 11–14): árbol = amor de Dios / Expiación; el edificio cae al final.',detail:'Funciona como mapa profético de todo el Libro de Mormón: la barra de hierro (la palabra de Dios), las nieblas de tinieblas (la tentación), el gran edificio (el orgullo mundano) y el fruto (la Expiación) son los símbolos organizadores del libro.'},
+    {name:'Las "Otras Ovejas" de Juan 10:16',ref:'Juan 10:16 cumplido en 3 Nefi 15',text:'La declaración de Cristo en Jerusalén "tengo otras ovejas que no son de este redil" — sus discípulos no podían entenderlo.',fulfillment:'3 Nefi 15:21 — Cristo dice a los nefitas que ellos son esas otras ovejas.',detail:'El Libro de Mormón se enmarca a sí mismo como el cumplimiento de una profecía del Nuevo Testamento: si crees en Juan 10:16, el Libro de Mormón es la evidencia de quiénes eran esas "otras ovejas."'},
+    {name:'La Dispersión y la Reunión de Israel',ref:'2 Nefi 6–10; 2 Nefi 25–30 (~570 a.C.)',text:'Nefi, citando extensamente a Isaías, profetiza la dispersión de Israel entre las naciones, los gentiles recibiendo el evangelio y la restauración final.',fulfillment:'En curso — el Libro de Mormón mismo se entiende como instrumento de la reunión.',detail:'La lectura de Isaías por Nefi enmarca todo el proyecto del Libro de Mormón dentro del arco del convenio: Israel dispersado (consumado); los gentiles reciben el evangelio (la publicación del libro); Israel reunido (futuro).'},
+    {name:'El Libro Sellado (Isaías 29)',ref:'2 Nefi 27 (~570 a.C.)',text:'Nefi cita a Isaías 29 como profecía de un libro sellado entregado a un hombre sin instrucción, con eruditos incapaces de leerlo.',fulfillment:'Entendido como la publicación del Libro de Mormón en 1830.',detail:'La profecía auto-autenticadora más fuerte interna del libro. El "hombre erudito" (que dice no poder leer un libro sellado) y el "hombre sin instrucción" (que lo lee por don divino) se interpretan como figuras históricas específicas.'},
+    {name:'Señales de la Muerte de Cristo — Oscuridad y Terremotos',ref:'1 Nefi 19:10–12 (~590 a.C.)',text:'Nefi profetiza que en la muerte de Cristo habrá truenos y relámpagos, terremotos y tres días de oscuridad entre los nefitas.',fulfillment:'3 Nefi 8 — cumplimiento exacto, seis siglos después.',detail:'Nefi, citando al profeta Zenós, enumera señales físicas que acompañarán la muerte de Cristo. El cumplimiento en 3 Nefi 8 los verifica uno a uno.'}
+  ]
+};
+
+function renderProphecies() {
+  const data = prophecies[lang];
+  document.getElementById('proph-list').innerHTML = data.map(p=>`
+    <div class="proph-item">
+      <div><h3>${p.name}</h3><p>${p.text}</p><p style="margin-top:8px;font-size:12px;color:var(--text3);line-height:1.6;">${p.detail}</p>
+      <div style="margin-top:8px;"><span class="tag tag-prophecy" style="font-size:10px;">${p.ref}</span></div></div>
+      <div class="fulfillment-box"><div class="fl">${t('Fulfillment','Cumplimiento')}</div><p>${p.fulfillment}</p></div>
+    </div>`).join('');
+}
+
+// ── FLASHCARDS ──
+const cards = {
+  en:[
+    {type:'doctrine',q:'What does "Adam fell that men might be" mean?',a:'The Fall was divinely intended — not a catastrophe but the necessary precondition for agency, opposition, and joy. Without the Fall, no righteousness or wickedness, no joy or misery, no redemption. The Fall creates the conditions for everything that matters.',src:'2 Nephi 2:25'},
+    {type:'doctrine',q:'What is the Doctrine of Christ as stated in 3 Nephi 11?',a:'Faith in Christ → repentance → baptism by water (by immersion, precise formula) → baptism by fire (Holy Ghost). Christ establishes this immediately upon appearing, before any other teaching, as the foundational gateway.',src:'3 Nephi 11:31–41'},
+    {type:'doctrine',q:'What is the "natural man" and how is it overcome?',a:'"The natural man is an enemy to God." The fallen human disposition is structurally opposed to the divine. Overcome through yielding to the Holy Spirit and the Atonement — becoming "as a child, submissive, meek, humble, patient, full of love."',src:'Mosiah 3:19'},
+    {type:'doctrine',q:'How does Alma 32 define faith?',a:'Faith is experimental — plant the word like a seed. Nourish it and observe whether it enlarges your soul, enlightens your understanding, and increases your joy. The witness comes after the trial, not before.',src:'Alma 32'},
+    {type:'doctrine',q:'How does Alma 42 resolve justice and mercy?',a:'"Mercy cannot rob justice." The Atonement resolves this: Christ absorbs the demands of justice on behalf of those who repent, so that mercy can operate without violating law.',src:'Alma 42:25'},
+    {type:'doctrine',q:'What does Ether 12:6 teach about faith?',a:'"Ye receive no witness until after the trial of your faith." The divine confirmation comes after action, not before it. Faith is acting under uncertainty; the witness is the reward.',src:'Ether 12:6'},
+    {type:'doctrine',q:'What are the conditions of Moroni\'s Promise?',a:'"Sincere heart, with real intent, having faith in Christ." All three required. Real intent means genuine willingness to act on the answer. Not for spectators.',src:'Moroni 10:4'},
+    {type:'doctrine',q:'What does Mormon say charity is?',a:'"Charity is the pure love of Christ." Not merely a human attitude but divine love flowing through God. A gift to pray for. Without it, faith and hope are incomplete.',src:'Moroni 7:47'},
+    {type:'history',q:'Why does Nephi kill Laban to obtain the brass plates?',a:'"It is better that one man should perish than that a nation should dwindle in unbelief." Laban was drunk and had tried to kill Nephi twice. Nephi hesitates; the Spirit commands; he obeys.',src:'1 Nephi 4'},
+    {type:'history',q:'What happens at King Benjamin\'s farewell address?',a:'A masterful sermon from a tower on servant leadership, the natural man, and covenant community. The people fall to the earth and experience a collective "mighty change of heart."',src:'Mosiah 2–5'},
+    {type:'history',q:'How does Abinadi convert Alma?',a:'Abinadi testifies before King Noah\'s court with such power that the young priest Alma begins to believe. He pleads for Abinadi\'s life; is cast out. Abinadi is burned. Alma founds the underground church.',src:'Mosiah 11–18'},
+    {type:'history',q:'What are the Gadianton robbers?',a:'A secret combination — clandestine network using oaths, murder, and conspiracy for power — that infiltrates Nephite government. Moroni warns modern readers they are already among them.',src:'Helaman 2, Ether 8'},
+    {type:'history',q:'What happens in the 200 years of 4 Nephi?',a:'"There were no contentions... every man did deal justly one with another... there were no rich and poor... all were made free and partakers of the heavenly gift." 200 years of peace in one chapter.',src:'4 Nephi 1'},
+    {type:'history',q:'Who are the stripling warriors?',a:'2,000 young Lamanite men whose mothers taught them that if they did not doubt, God would protect them. All 2,000 survive every battle though all are wounded. None die.',src:'Alma 56–57'},
+    {type:'person',q:'Who was Alma the Younger before his conversion?',a:'The son of Alma the Elder who actively fought against the church. An angel appeared; he fell unconscious for three days. He described it as "being racked with eternal torment" before experiencing God\'s mercy.',src:'Mosiah 27, Alma 36'},
+    {type:'person',q:'What makes Captain Moroni extraordinary?',a:'Mormon says: "If all men had been like unto Moroni, the very powers of hell would have been shaken forever." His conviction, brilliance, and fierce righteousness. He also threatened the government with civil war to force action.',src:'Alma 48:17'},
+    {type:'person',q:'What does Enos\'s wrestling prayer look like?',a:'He goes into the forest; his soul "hungered." He prays all day and into the night. Receives forgiveness. Asks "How?" Answer: "Because of thy faith in Christ." Then prays for the Lamanites and future generations.',src:'Enos 1'},
+    {type:'person',q:'Who is the brother of Jared and why is his faith significant?',a:'The Jaredite leader who asks God to touch stones to make them glow. His faith is so complete that God cannot hide himself — the veil is removed and he sees Christ\'s spirit body before the Incarnation.',src:'Ether 3'},
+    {type:'person',q:'Who is Samuel the Lamanite?',a:'A Lamanite prophet who stands on Zarahemla\'s wall and prophesies specific signs of Christ\'s birth and death. Arrows and stones cannot hit him. His outsider status is the BOM\'s sharpest reversal.',src:'Helaman 13–16'},
+    {type:'verse',q:'Recite or paraphrase 1 Nephi 3:7.',a:'"I will go and do the things which the Lord hath commanded, for I know that the Lord giveth no commandments unto the children of men, save he shall prepare a way for them that they may accomplish the thing which he commandeth."',src:'1 Nephi 3:7'},
+    {type:'verse',q:'What does Mosiah 2:17 say about service?',a:'"When ye are in the service of your fellow beings ye are only in the service of your God."',src:'Mosiah 2:17'},
+    {type:'verse',q:'What is the core of Helaman 5:12?',a:'"Remember that it is upon the rock of our Redeemer, who is Christ, the Son of God, that ye must build your foundation; that when the devil shall send forth his mighty winds... it shall have no power over you."',src:'Helaman 5:12'},
+    {type:'verse',q:'What does 3 Nephi 11:10–11 record Christ as saying?',a:'"Behold, I am Jesus Christ, whom the prophets testified shall come into the world. And behold, I am the light and the life of the world; and I have drunk out of that bitter cup."',src:'3 Nephi 11:10–11'},
+    {type:'verse',q:'What is Ether 12:27\'s promise about weakness?',a:'"My grace is sufficient for all men that humble themselves before me; for if they humble themselves before me, and have faith in me, then will I make weak things become strong unto them."',src:'Ether 12:27'},
+    {type:'verse',q:'What is Moroni 10:32\'s final exhortation?',a:'"Yea, come unto Christ, and be perfected in him, and deny yourselves of all ungodliness; and if ye shall deny yourselves of all ungodliness... then is his grace sufficient for you."',src:'Moroni 10:32'},
+    {type:'doctrine',q:'What does 3 Nephi 15 reveal about John 10:16?',a:'Christ tells the Nephites that when he said "other sheep I have which are not of this fold" he was referring specifically to them. The BOM presents itself as the fulfillment of this specific New Testament prophecy.',src:'3 Nephi 15:21'},
+    {type:'doctrine',q:'What does the BOM teach about the resurrection?',a:'Spirit and body are "reunited, never to be divided again" — permanent, universal, unconditional. All who ever lived will be resurrected regardless of righteousness. The unconditional gift of the Atonement.',src:'Alma 11:45'},
+    {type:'history',q:'How do the Anti-Nephi-Lehies demonstrate non-violent witness?',a:'These Lamanite converts bury their weapons of war and refuse to fight even when attacked. 1,000 are killed without resistance, going peacefully. They consider fighting a worse evil than death because of their prior bloodshed.',src:'Alma 24'},
+    {type:'history',q:'What is the brother of Jared\'s encounter with God in Ether 3?',a:'He brings sixteen molten stones and asks God to touch them to make them glow. Because of his extraordinary faith, God cannot hide himself — the veil is removed and the brother of Jared sees Christ\'s spirit body, exactly as it will appear at the Incarnation.',src:'Ether 3'},
+    {type:'doctrine',q:'What is the BOM\'s teaching on infant baptism?',a:'Mormon argues forcefully against it (Moroni 8): "Little children are alive in Christ." Children are innocent through the Atonement and do not need baptism. Those who teach infant baptism are in error.',src:'Moroni 8'}
+  ],
+  es:[
+    {type:'doctrina',q:'¿Qué significa "Adán cayó para que los hombres existiesen"?',a:'La Caída fue un designio divino — no una catástrofe sino la condición necesaria para el albedrío, la oposición y el gozo. Sin la Caída, ni rectitud ni maldad, ni gozo ni miseria, ni redención. La Caída crea las condiciones para todo lo que importa.',src:'2 Nefi 2:25'},
+    {type:'doctrina',q:'¿Qué es la Doctrina de Cristo según 3 Nefi 11?',a:'Fe en Cristo → arrepentimiento → bautismo por agua (por inmersión, fórmula precisa) → bautismo de fuego (Espíritu Santo). Cristo lo establece inmediatamente al aparecer, antes de cualquier otra enseñanza, como la puerta de entrada fundamental.',src:'3 Nefi 11:31–41'},
+    {type:'doctrina',q:'¿Qué es el "hombre natural" y cómo se supera?',a:'"El hombre natural es enemigo de Dios." La disposición humana caída se opone estructuralmente a lo divino. Se supera rindiéndose a las incitaciones del Espíritu Santo y la Expiación — llegando a ser "como un niño, sumiso, manso, humilde, paciente, lleno de amor."',src:'Mosíah 3:19'},
+    {type:'doctrina',q:'¿Cómo define Alma 32 la fe?',a:'La fe es experimental — planta la palabra como una semilla. Nutrela y observa si agranda tu alma, ilumina tu entendimiento y aumenta tu gozo. El testimonio viene después de la prueba, no antes.',src:'Alma 32'},
+    {type:'doctrina',q:'¿Cómo resuelve Alma 42 la justicia y la misericordia?',a:'"La misericordia no puede robar a la justicia." La Expiación lo resuelve: Cristo absorbe las exigencias de la justicia en nombre de quienes se arrepienten, para que la misericordia pueda operar sin violar la ley.',src:'Alma 42:25'},
+    {type:'doctrina',q:'¿Qué enseña Éter 12:6 sobre la fe?',a:'"No recibiréis ningún testimonio hasta después de la prueba de vuestra fe." La confirmación divina llega después de la acción, no antes. La fe es actuar bajo incertidumbre; el testimonio es la recompensa.',src:'Éter 12:6'},
+    {type:'doctrina',q:'¿Cuáles son las condiciones de la Promesa de Moroni?',a:'"Corazón sincero, con intención real, teniendo fe en Cristo." Las tres son necesarias. La intención real significa disposición genuina de actuar según la respuesta. No para espectadores.',src:'Moroni 10:4'},
+    {type:'doctrina',q:'¿Qué dice Mormón que es la caridad?',a:'"La caridad es el amor puro de Cristo." No meramente una actitud humana sino el amor divino que fluye de Dios. Un don por el que hay que orar. Sin ella, la fe y la esperanza son incompletas.',src:'Moroni 7:47'},
+    {type:'historia',q:'¿Por qué Nefi mata a Labán para obtener las planchas de bronce?',a:'"Es mejor que un solo hombre muera antes de que una nación caiga en incredulidad." Labán estaba ebrio y había intentado matar a Nefi dos veces. Nefi vacila; el Espíritu manda; obedece.',src:'1 Nefi 4'},
+    {type:'historia',q:'¿Qué ocurre en el discurso de despedida del rey Benjamín?',a:'Un magistral sermón desde una torre sobre el liderazgo de servicio, el hombre natural y la comunidad del convenio. El pueblo cae a tierra y experimenta un colectivo "gran cambio de corazón."',src:'Mosíah 2–5'},
+    {type:'historia',q:'¿Cómo convierte Abinadi a Alma?',a:'Abinadi testifica ante la corte del rey Noé con tal poder que el joven sacerdote Alma comienza a creer. Intercede por la vida de Abinadi; es expulsado. Abinadi es quemado. Alma funda la iglesia clandestina.',src:'Mosíah 11–18'},
+    {type:'historia',q:'¿Qué son los ladrones de Gadiantón?',a:'Una combinación secreta — red clandestina que usa juramentos, asesinatos y conspiración para el poder — que se infiltra en el gobierno nefita. Moroni advierte a los lectores modernos que ya están entre ellos.',src:'Helamán 2, Éter 8'},
+    {type:'historia',q:'¿Qué ocurre en los 200 años de 4 Nefi?',a:'"No había ninguna contienda... todo hombre trataba justamente al otro... no había ricos ni pobres... todos fueron hechos libres y participantes del don celestial." 200 años de paz en un solo capítulo.',src:'4 Nefi 1'},
+    {type:'historia',q:'¿Quiénes son los jóvenes guerreros?',a:'2,000 jóvenes lamanitas cuyas madres les enseñaron que si no dudaban, Dios los libraría. Los 2,000 sobreviven cada batalla aunque todos son heridos. Ninguno muere.',src:'Alma 56–57'},
+    {type:'personaje',q:'¿Quién era Alma el Joven antes de su conversión?',a:'El hijo de Alma el Mayor que activamente luchaba contra la iglesia. Apareció un ángel; cayó inconsciente tres días. Describió la experiencia como "ser atormentado con tormento eterno" antes de experimentar la misericordia de Dios.',src:'Mosíah 27, Alma 36'},
+    {type:'personaje',q:'¿Qué hace extraordinario al capitán Moroni?',a:'Mormón dice: "Si todos los hombres hubiesen sido como Moroni, los propios poderes del infierno habrían sido sacudidos para siempre." Su convicción, brillantez y feroz justicia. También amenazó al gobierno con la guerra civil para forzar la acción.',src:'Alma 48:17'},
+    {type:'personaje',q:'¿Cómo es la oración de lucha de Enós?',a:'Va al bosque; su alma "sentía hambre." Ora todo el día y hasta la noche. Recibe el perdón. Pregunta "¿Cómo?" Respuesta: "Por tu fe en Cristo." Luego ora por los lamanitas y generaciones futuras.',src:'Enós 1'},
+    {type:'personaje',q:'¿Quién es el hermano de Jared y por qué es significativa su fe?',a:'El líder jaredita que pide a Dios que toque piedras para que brillen. Su fe es tan completa que Dios no puede ocultarse — el velo es levantado y ve el cuerpo espiritual de Cristo antes de la Encarnación.',src:'Éter 3'},
+    {type:'personaje',q:'¿Quién es Samuel el Lamanita?',a:'Un profeta lamanita que se para sobre la muralla de Zarahemla y profetiza señales específicas del nacimiento y la muerte de Cristo. Las flechas y piedras no pueden alcanzarle. Su condición de forastero es la inversión más marcada del libro.',src:'Helamán 13–16'},
+    {type:'versículo',q:'Cita o parafrasea 1 Nefi 3:7.',a:'"Iré y haré las cosas que el Señor ha mandado, pues sé que el Señor no da mandamientos a los hijos de los hombres sin antes prepararles el camino para que puedan cumplir lo que él manda."',src:'1 Nefi 3:7'},
+    {type:'versículo',q:'¿Qué dice Mosíah 2:17 sobre el servicio?',a:'"Cuando estáis al servicio de vuestros semejantes, estáis únicamente al servicio de vuestro Dios."',src:'Mosíah 2:17'},
+    {type:'versículo',q:'¿Cuál es el núcleo de Helamán 5:12?',a:'"Recordad que es sobre la roca de nuestro Redentor, que es Cristo, el Hijo de Dios, que debéis edificar vuestro fundamento; para que cuando el diablo envíe sus vientos poderosos... no tendrá poder sobre vosotros."',src:'Helamán 5:12'},
+    {type:'versículo',q:'¿Qué registra 3 Nefi 11:10–11 que dijo Cristo?',a:'"He aquí, soy Jesucristo, de quien los profetas testificaron que había de venir al mundo. Y he aquí, soy la luz y la vida del mundo; y he bebido de esa amarga copa."',src:'3 Nefi 11:10–11'},
+    {type:'versículo',q:'¿Cuál es la promesa de Éter 12:27 sobre la debilidad?',a:'"Mi gracia es suficiente para todos los hombres que se humillan ante mí; porque si se humillan ante mí, y tienen fe en mí, entonces haré que las cosas débiles lleguen a ser fuertes para ellos."',src:'Éter 12:27'},
+    {type:'versículo',q:'¿Cuál es la exhortación final de Moroni 10:32?',a:'"Sí, venid a Cristo y perfeccionaos en él, y absteneos de toda impiedad; y si os abstenéis de toda impiedad... entonces su gracia es suficiente para vosotros."',src:'Moroni 10:32'},
+    {type:'doctrina',q:'¿Qué revela 3 Nefi 15 sobre Juan 10:16?',a:'Cristo dice a los nefitas que cuando dijo "tengo otras ovejas que no son de este redil" se refería específicamente a ellos. El Libro de Mormón se presenta como el cumplimiento de esta profecía específica del Nuevo Testamento.',src:'3 Nefi 15:21'},
+    {type:'doctrina',q:'¿Qué enseña el Libro de Mormón sobre la resurrección?',a:'El espíritu y el cuerpo son "reunidos, para nunca más ser separados" — permanente, universal, incondicional. Todos los que vivieron resucitarán independientemente de su rectitud. El don incondicional de la Expiación.',src:'Alma 11:45'},
+    {type:'historia',q:'¿Cómo demuestran los anti-nefi-lehitas el testimonio no violento?',a:'Estos conversos lamanitas entierran sus armas y se niegan a luchar aunque son atacados. 1,000 son muertos sin resistencia, yendo pacíficamente. Consideran luchar un mal peor que la muerte por sus anteriores derramamientos de sangre.',src:'Alma 24'},
+    {type:'historia',q:'¿Cuál es el encuentro del hermano de Jared con Dios en Éter 3?',a:'Lleva dieciséis piedras fundidas y pide a Dios que las toque para que brillen. Por su fe extraordinaria, Dios no puede ocultarse — el velo es levantado y el hermano de Jared ve el cuerpo espiritual de Cristo, exactamente como aparecerá en la Encarnación.',src:'Éter 3'},
+    {type:'doctrina',q:'¿Qué enseña el Libro de Mormón sobre el bautismo de infantes?',a:'Mormón argumenta firmemente en contra (Moroni 8): "Los niños pequeños están vivos en Cristo." Los niños son inocentes por la Expiación y no necesitan bautismo. Quienes enseñan el bautismo de infantes están en error.',src:'Moroni 8'}
+  ]
+};
+
+let filteredCards = [...cards.en];
+let currentCard = 0;
+let isFlipped = false;
+
+function filterCards(type, ev) {
+  const data = cards[lang];
+  filteredCards = type === 'all' ? [...data] : data.filter(c => c.type === type || c.type === (lang==='es' ? typeToEs(type) : type));
+  currentCard = 0; isFlipped = false;
+  document.querySelectorAll('.fc-btn').forEach(b=>b.classList.remove('active'));
+  if(ev) ev.target.classList.add('active');
+  updateCard();
+}
+
+function typeToEs(t) {
+  return {doctrine:'doctrina',history:'historia',person:'personaje',verse:'versículo'}[t]||t;
+}
+
+function shuffleFC() { filteredCards = filteredCards.sort(()=>Math.random()-0.5); currentCard=0; isFlipped=false; updateCard(); }
+
+function updateCard() {
+  const c = filteredCards[currentCard];
+  if(!c) return;
+  document.getElementById('fc-inner').classList.remove('flipped');
+  isFlipped = false;
+  setTimeout(()=>{
+    document.getElementById('fc-type').textContent = (c.type||'').toUpperCase();
+    document.getElementById('fc-question').textContent = c.q;
+    document.getElementById('fc-answer').textContent = c.a;
+    document.getElementById('fc-source').textContent = c.src;
+    document.getElementById('fc-counter').textContent = `${currentCard+1} / ${filteredCards.length}`;
+  },150);
+}
+
+function flipCard() { isFlipped=!isFlipped; document.getElementById('fc-inner').classList.toggle('flipped',isFlipped); }
+function nextCard() { currentCard=(currentCard+1)%filteredCards.length; updateCard(); }
+function prevCard() { currentCard=(currentCard-1+filteredCards.length)%filteredCards.length; updateCard(); }
+
+// ── AI TUTOR ──
+let tutorMode = 'study';
+let chatHistory = [];
+
+const systemPrompts = {
+  en_study:`You are a knowledgeable and warm study guide for the Book of Mormon. You know the entire text thoroughly — all 15 books, 239 chapters. You help students understand narrative, characters, doctrines, themes, and literary structure. Key content: 1 Nephi (Lehi's vision, Tree of Life, brass plates), 2 Nephi (Lehi's discourse on agency and the Fall in ch. 2, Jacob on Atonement ch. 9, Doctrine of Christ ch. 31), Jacob-Omni (Enos's prayer, Zenos's olive tree allegory Jacob 5), Mosiah (King Benjamin's address chs. 2-5, Abinadi's martyrdom chs. 11-17, Alma at Waters of Mormon ch. 18), Alma (faith as seed ch. 32, justice and mercy ch. 42, Captain Moroni, stripling warriors), Helaman (Gadianton robbers, Samuel the Lamanite's prophecies chs. 13-14), 3 Nephi (Christ's appearance ch. 11, Sermon on the Mount version chs. 12-14, "other sheep" ch. 15), 4 Nephi (200 years of peace), Mormon (compiler's grief, the decline), Ether (Jaredites, brother of Jared sees God ch. 3, faith in ch. 12), Moroni (charity ch. 7, Moroni's Promise ch. 10). Be warm, clear, and thorough.`,
+  en_doctrine:`You are a deep theological analyst of Book of Mormon doctrine. Specialize in: the Atonement (infinite, satisfying both justice and mercy, 2 Ne 9, Alma 34, 42), the Fall (divinely intended, 2 Ne 2), agency (cosmologically necessary), Doctrine of Christ (3 Ne 11, 27), faith as experimental process (Alma 32), resurrection (universal, Alma 11, 40), the natural man (Mosiah 3:19), charity (Moroni 7), pride cycle, secret combinations, Moroni's Promise (Moroni 10). Go deep on the internal logic of each doctrine, their interconnection, textual grounding, and philosophical implications.`,
+  en_challenge:`You are a challenging Socratic questioner on the Book of Mormon. Push back on surface-level answers, complicate easy readings, force deeper thinking. Ask follow-up questions. Point out tensions. If they give a standard answer, ask: "But how does that square with...?" The goal is genuine understanding through productive difficulty.`,
+  en_connect:`You are an expert at finding cross-references and structural connections within the Book of Mormon and between it and other scripture. Show how Alma 32's faith-as-seed connects to Ether 12's timing of witness. How Jacob's Atonement theology anticipates Alma 42. How the Tree of Life vision (1 Ne 8) maps onto the entire BOM narrative. Find deep structural patterns, intertextual echoes, typological connections.`,
+  es_study:`Eres una guía de estudio conocedora y cálida del Libro de Mormón. Conoces el texto completo — los 15 libros, 239 capítulos. Ayudas a los estudiantes a entender la narrativa, los personajes, las doctrinas, los temas y la estructura literaria. Contenido clave: 1 Nefi (visión de Lehi, árbol de la vida, planchas de bronce), 2 Nefi (discurso de Lehi sobre el albedrío y la Caída en cap. 2, Jacob sobre la Expiación cap. 9, Doctrina de Cristo cap. 31), Jacob-Omni (oración de Enós, alegoría del olivo de Zenós Jacob 5), Mosíah (discurso del rey Benjamín caps. 2-5, martirio de Abinadi, Alma en las Aguas de Mormón), Alma (la fe como semilla cap. 32, justicia y misericordia cap. 42, capitán Moroni, jóvenes guerreros), Helamán (ladrones de Gadiantón, profecías de Samuel el Lamanita), 3 Nefi (aparición de Cristo cap. 11, otras ovejas cap. 15), Éter (jareditas, hermano de Jared ve a Dios cap. 3, fe en cap. 12), Moroni (caridad cap. 7, Promesa de Moroni cap. 10). Sé cálido, claro y exhaustivo. Responde siempre en español.`,
+  es_doctrine:`Eres un analista teológico profundo de la doctrina del Libro de Mormón. Te especializas en: la Expiación (infinita, satisfaciendo justicia y misericordia), la Caída (designio divino, 2 Nefi 2), el albedrío (cosmológicamente necesario), la Doctrina de Cristo (3 Nefi 11, 27), la fe como proceso experimental (Alma 32), la resurrección (universal, Alma 11, 40), el hombre natural (Mosíah 3:19), la caridad (Moroni 7), el ciclo del orgullo, las combinaciones secretas, la Promesa de Moroni (Moroni 10). Ve a fondo en la lógica interna de cada doctrina, su interconexión, fundamento textual e implicaciones filosóficas. Responde siempre en español.`,
+  es_challenge:`Eres un cuestionador socrático exigente sobre el Libro de Mormón. Rebate las respuestas superficiales, complica las lecturas fáciles y fuerza un pensamiento más profundo. Haz preguntas de seguimiento. Señala tensiones. Si dan una respuesta estándar, pregunta: "¿Pero cómo se reconcilia eso con...?" El objetivo es la comprensión genuina a través de la dificultad productiva. Responde siempre en español.`,
+  es_connect:`Eres un experto en encontrar referencias cruzadas y conexiones estructurales dentro del Libro de Mormón y entre él y otras escrituras. Muestra cómo la fe-como-semilla de Alma 32 se conecta con el momento del testimonio de Éter 12. Cómo la teología de la Expiación de Jacob anticipa Alma 42. Cómo la visión del árbol de la vida (1 Nefi 8) mapea la narrativa completa del libro. Encuentra patrones estructurales profundos y conexiones tipológicas. Responde siempre en español.`
+};
+
+const quickPrompts = {
+  en:['Atonement doctrine','The pride cycle','King Benjamin','Faith vs. works','Gadianton robbers','Brother of Jared','Doctrine of Christ','Isaiah in the BOM'],
+  es:['La doctrina de la Expiación','El ciclo del orgullo','El rey Benjamín','Fe vs. obras','Los ladrones de Gadiantón','El hermano de Jared','La Doctrina de Cristo','Isaías en el Libro de Mormón']
+};
+
+const tutorWelcome = {
+  en:'Ask anything about the Book of Mormon — doctrine, history, characters, or theology.',
+  es:'Pregunta lo que quieras sobre el Libro de Mormón — doctrina, historia, personajes o teología.'
+};
+
+const inputPlaceholder = {
+  en:'Ask about any passage, doctrine, or character...',
+  es:'Pregunta sobre cualquier pasaje, doctrina o personaje...'
+};
+
+function updateTutorUI() {
+  document.getElementById('tutor-welcome').textContent = tutorWelcome[lang];
+  document.getElementById('chat-input').placeholder = inputPlaceholder[lang];
+  const qp = document.getElementById('quick-prompts');
+  qp.innerHTML = quickPrompts[lang].map(p=>`<button class="qp-btn" onclick="sendQuick('${p}')">${p}</button>`).join('');
+}
+
+function setMode(mode) {
+  tutorMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.mode-btn.'+mode).classList.add('active');
+}
+
+function sendQuick(text) { document.getElementById('chat-input').value=text; sendMessage(); }
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  addMsg('user', msg);
+  chatHistory.push({role:'user', content:msg});
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  const loading = addMsg('loading', lang==='en'?'Consulting the record...':'Consultando el registro...');
+  try {
+    const key = lang+'_'+tutorMode;
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: systemPrompts[key] || systemPrompts['en_study'],
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || (lang==='en'?'No response received.':'No se recibió respuesta.');
+    loading.remove();
+    addMsg('ai', text);
+    chatHistory.push({role:'assistant',content:text});
+  } catch(e) {
+    loading.remove();
+    addMsg('ai', lang==='en'?'Error connecting. Please try again.':'Error de conexión. Inténtalo de nuevo.');
+  }
+  btn.disabled = false;
+}
+
+function addMsg(type, text) {
+  const box = document.getElementById('chat-box');
+  const div = document.createElement('div');
+  div.className = 'chat-msg '+type;
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  renderDoctrines();
+  renderChars();
+  renderThemes();
+  renderProphecies();
+  filteredCards = [...cards[lang]];
+  currentCard = 0; isFlipped = false;
+  updateCard();
+  selectBook(currentBook);
+  updateTutorUI();
+  document.getElementById('doctrine-detail').classList.remove('visible');
+  document.getElementById('char-detail').classList.remove('visible');
+  document.getElementById('theme-detail').classList.remove('visible');
+}
+
+// ── INIT ──
+renderAll();
+selectFive(0);
+</script>
+</body>
+</html>
